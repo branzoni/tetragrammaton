@@ -1,0 +1,25 @@
+{
+    "name": "branzoni/tetragrammaton",
+    "stability":"stable",
+    "version":"1.0.0",
+    "type": "library",
+    "description": "Simple library for PHP apps",
+    "keywords": ["php", "api", "app", "simple"],
+    "homepage": "https://github.com/branzoni/tetra",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Sergey Afanasyev",
+            "email": "sergey.v.afanasyev@gmail.com",            
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=7.4"        
+    },
+    "autoload": {
+        "psr-0": {
+            "tetra": "src"
+        }
+    }
+}
