@@ -27,13 +27,16 @@ include("db/table.php");
 include("db/row.php");
 include("db/mysql.php");
 include("db/query.php");
+
 include("mail/mail.php");
+
 
 
 
 use Tetra\HTTP\Server;
 use Tetra\HTTP\Client;
 use Tetra\Mail;
+use Tetra\Utils;
 
 /**
  * Обеспечивает необходимый функционал для разработки несложных API:
@@ -48,11 +51,10 @@ use Tetra\Mail;
 class Tetra
 {
     private $params; // переменная для хранения настроек двжика
+    private $mysql; // пременная для объекта работы с БД
 
     private $server;
     private $client;
-
-    private $mysql; // пременная для объекта работы с БД
 
     public $report_email;
     public $response_function;
@@ -60,11 +62,11 @@ class Tetra
     function __construct()
     {
         $this->params = new Params;
-
+        
         $this->server = new Server;
         $this->client = new Client;
 
-        $this->mysql = new MySQL;
+        $this->mysql = new MySQL;        
     }
 
     function params(): Params
@@ -88,22 +90,20 @@ class Tetra
         return $this->mysql;
     }
 
-
+    
     function filesystem(): FileSystem
     {
         return new FileSystem;
     }
 
-
-    function utils(): Utils
-    {
-        return new Utils;
-    }
-
-    function mail($from = "", $to = "", $subject = "", $message = "", $attachments = ""): Mail
-    {
+    function mail($from="", $to="", $subject="", $message="", $attachments=""){
         return new Mail($from, $to, $subject, $message, $attachments);
     }
+
+    function utils(){
+        return new Utils;
+    }
+    
 
 
     /**
@@ -168,8 +168,7 @@ class Tetra
         );
     }
 
-    function about()
-    {
+    function about(){
         return "Simple library for PHP apps";
     }
 }
