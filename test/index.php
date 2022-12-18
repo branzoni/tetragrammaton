@@ -11,3 +11,5 @@ $tet = new Tetra;
 
 $tet->client()->request()->header("qqq")->set("qqqq2");
 echo $tet->client()->request()->header("qqq");
+
+//$tet->mail()

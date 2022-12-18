@@ -5,6 +5,7 @@ namespace Tetra;
 use Throwable;
 use Exception;
 
+
 include("common/properless.php");
 include("common/prop.php");
 include("common/params.php");
@@ -25,10 +26,13 @@ include("db/table.php");
 include("db/row.php");
 include("db/mysql.php");
 include("db/query.php");
+include("mail/mail.php");
+
 
 
 use Tetra\HTTP\Server;
 use Tetra\HTTP\Client;
+use Tetra\Mail;
 
 /**
  * Обеспечивает необходимый функционал для разработки несложных API:
@@ -89,6 +93,10 @@ class Tetra
     function filesystem(): FileSystem
     {
         return $this->filesystem;
+    }
+
+    function mail($from="", $to="", $subject="", $message="", $attachments=""){
+        return new Mail($from, $to, $subject, $message, $attachments);
     }
 
 
