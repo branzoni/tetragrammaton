@@ -2,9 +2,29 @@
 
 namespace Tetra\HTTP\Client;
 
+use Tetra\Prop;
+
 class Response
 {
-    public $body;
-    public $headers;
-    public $code;
+    private $body;
+    private $headers;
+    private $code;
+
+    function __construct()
+    {
+        $this->body = new Prop;
+        $this->code = new Prop;
+    }
+
+    function body(){
+        return $this->body;
+    }
+
+    function code(){
+        return $this->code;
+    }
+
+    function headers(){
+        return $this->headers;
+    }
 }

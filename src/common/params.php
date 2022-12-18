@@ -2,7 +2,9 @@
 
 namespace Tetra;
 
+use ArrayObject;
 use Exception;
+use Properless;
 
 /**
  * Обеспечивает единообразную работу с ассоциированными массивами:
@@ -12,26 +14,18 @@ use Exception;
  * - количество ключей
  * @author Sergey Afanasyev <sergey.v.afanasyev@gmail.com>
  */
-class Params
+class Params extends Properless
 {
     private $data = [];
 
-    function __set($propname, $value)
-    {
-        throw new Exception("try to set unknown property name '$propname'");
-    }
-
-    function __get($propname)
-    {        
-        throw new Exception("try to get unknown property name '$propname'");
-    }
-
-    function set($propname, $value)
+    
+    function set($propname, $value):bool
     {
         $this->data[$propname] = $value;
+        return true;
     }
 
-    function get($propname)
+    function get($propname):mixed
     {
         if (!$this->is_set($propname)) throw new Exception("unknown property name '$propname'");
         return $this->data[$propname];
@@ -40,15 +34,15 @@ class Params
     /**
      *  Проверяет наличие в массиве элемента с указанным именем
      */
-    function is_set($propname)
+    function is_set($propname):bool
     {
         return array_key_exists($propname, $this->data);
     }
 
     /**Функция проверяет наличие параметра и что его значение находится в списке, если один из пунктов не выполняется, возвращает false*/
-    function is_valid($propname, $values)
+    function is_valid($propname, $values):bool
     {
-        if (!$this->is_set($propname)) return false;        
+        if (!$this->is_set($propname)) return false;
         if (array_search($this->$propname, $values) === false)  return false;
         return true;
     }
@@ -56,7 +50,7 @@ class Params
     /**
      *  Возвращает количество свойств в массиве свойств
      */
-    function count()
+    function count():Int
     {
         return count($this->data);
     }
@@ -64,8 +58,20 @@ class Params
     /**
      *  Заполняет массив свойсв данными, переданными в параметре
      */
-    function load($data)
+    function load($data):Bool
     {
         $this->data = $data;
+        return true;
+    }
+
+
+    function to_json():String
+    {
+        return json_encode($this->data);
+    }
+
+    function keys():Array
+    {
+        return array_keys($this->data);
     }
 }

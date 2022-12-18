@@ -8,53 +8,16 @@ class Request
 {
 
     private $params;
-    private $headers;
 
     function __construct()
     {
         $this->params = new Params;
         $this->params->load($this->get_data());
-        $this->headers = $this->get_headers();
     }
 
-    function params()
+    function params(): Params
     {
         return $this->params;
-    }
-
-    function headers()
-    {
-        return $this->headers;
-    }
-
-    function files()
-    {
-        if (isset($_FILES)) return $_FILES;
-    }
-
-    function is_post()
-    {
-        return $this->get_method() == "POST";
-    }
-
-    function is_get()
-    {
-        return $this->get_method() == "GET";
-    }
-
-    function is_options()
-    {
-        return $this->get_method() == "OPTIONS";
-    }
-
-    function get_method()
-    {
-        return $_SERVER['REQUEST_METHOD'];
-    }
-
-
-    function has($names)
-    {
     }
 
     function query_params(): Params
@@ -64,24 +27,61 @@ class Request
         return $tmp;
     }
 
+    function formdata(): array
+    {
+        return $_POST;
+    }
+
+    function body()
+    {
+        return file_get_contents('php://input');
+    }
+
+    function headers()
+    {
+        return getallheaders();
+    }
+
+    function files()
+    {
+        if (isset($_FILES)) return $_FILES;
+    }
+
+    function is_post(): bool
+    {
+        return $this->method() == "POST";
+    }
+
+    function is_get(): bool
+    {
+        return $this->method() == "GET";
+    }
+
+    function is_options(): bool
+    {
+        return $this->method() == "OPTIONS";
+    }
+
+    function is_put(): bool
+    {
+        return $this->method() == "PUT";
+    }
+
+    function is_delete(): bool
+    {
+        return $this->method() == "DELETE";
+    }
+
+    function method(): string
+    {
+        return $_SERVER['REQUEST_METHOD'];
+    }
 
     private function get_data()
     {
-
-        switch ($this->get_method()) {
-            case "POST":
-                return $_POST;
-                break;
-            case "GET":
-                return $_GET;
-                break;
-        }
-
+        $method = $this->method();
+        if ($method == "POST") return $_POST;
+        if ($method == "GET") return $_GET;
         return false;
-    }
-
-    private function get_headers()
-    {
-        return getallheaders();
     }
 }

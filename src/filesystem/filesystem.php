@@ -2,20 +2,28 @@
 
 namespace Tetra;
 
-class FileSystem{
-    function mkdir($path){
-        if (file_exists($path)) return true;        
+class FileSystem
+{
+    function mkdir($path)
+    {
+        if (file_exists($path)) return true;
         return @mkdir($path, 0777, true);
     }
 
-    function rename($from, $to){
+    function rename($from, $to)
+    {
         return @rename($from, $to);
+    }
+
+    function sys_get_temp_dir()
+    {
+        return sys_get_temp_dir();
     }
 
     function save_remote_file($url, $to)
     {
         $file = new File($to);
-        if (!$this->mkdir($file->dirname())) return false;                       
+        if (!$this->mkdir($file->dirname())) return false;
 
         // скачиваем файл по ссылке и сохраняем по указанному пути
 
@@ -38,15 +46,16 @@ class FileSystem{
         return true;
     }
 
-    function save_uploaded_file($from, $to){        
+    function save_uploaded_file($from, $to)
+    {
         $file = new File($to);
-        if (!$this->mkdir($file->dirname())) return false;                       
+        if (!$this->mkdir($file->dirname())) return false;
 
         return @move_uploaded_file($from, $to);
     }
 
     // возвращает массив с путями к файлам из указанной папки и соответствующие маске
-    function get_files($path, $patterns): Array
+    function get_files($path, $patterns): array
     {
         $files = [];
         foreach ($patterns as $pattern) $files = array_merge($files, $this->glob_recursive($path . $pattern));

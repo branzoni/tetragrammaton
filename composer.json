@@ -1,8 +1,8 @@
 {
-    "name": "branzoni/tet",
-    "stability":"stable",
-    "version":"1.0.0",
+    "name": "branzoni/tet",    
     "type": "library",
+    "stability":"stable",
+    "version":"0.0.1",
     "description": "Simple library for PHP apps",
     "keywords": ["php", "api", "app", "simple"],
     "homepage": "https://github.com/branzoni/tetra",
@@ -19,7 +19,7 @@
     },
     "autoload": {
         "classmap": [
-            "src/tetra.php"
+            "src/tet.php"
         ]
     }    
 }

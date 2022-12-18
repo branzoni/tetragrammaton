@@ -5,6 +5,8 @@ namespace Tetra;
 use Throwable;
 use Exception;
 
+include("common/properless.php");
+include("common/prop.php");
 include("common/params.php");
 include("common/result.php");
 
@@ -119,27 +121,6 @@ class Tetra
         return true;
     }
 
-
-    // отправить клиенту данные как файл на скачивание
-    function file_transfer($file_name, $data): Bool
-    {
-
-        if (ob_get_level()) ob_end_clean();
-
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename=' . $file_name);
-        header('Content-Transfer-Encoding: binary');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . strlen($data));
-
-        echo $data;
-
-        return true;
-    }
-
     private function call_user_func(): String
     {
         // функция проверки параметров, необходимых для работы движка
@@ -171,5 +152,9 @@ class Tetra
             $text,
             "Content-Type: text/html; charset=UTF-8"
         );
+    }
+
+    function about(){
+        return "Simple library for PHP apps";
     }
 }
