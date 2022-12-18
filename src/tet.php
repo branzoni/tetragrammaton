@@ -10,6 +10,7 @@ include("common/properless.php");
 include("common/prop.php");
 include("common/params.php");
 include("common/result.php");
+include("common/utils.php");
 
 include("http/server/server.php");
 include("http/server/request.php");
@@ -47,12 +48,11 @@ use Tetra\Mail;
 class Tetra
 {
     private $params; // переменная для хранения настроек двжика
-    private $mysql; // пременная для объекта работы с БД
-
-    private $filesystem;
 
     private $server;
     private $client;
+
+    private $mysql; // пременная для объекта работы с БД
 
     public $report_email;
     public $response_function;
@@ -60,12 +60,11 @@ class Tetra
     function __construct()
     {
         $this->params = new Params;
-        
+
         $this->server = new Server;
         $this->client = new Client;
 
         $this->mysql = new MySQL;
-        $this->filesystem =  new FileSystem;
     }
 
     function params(): Params
@@ -89,13 +88,20 @@ class Tetra
         return $this->mysql;
     }
 
-    
+
     function filesystem(): FileSystem
     {
-        return $this->filesystem;
+        return new FileSystem;
     }
 
-    function mail($from="", $to="", $subject="", $message="", $attachments=""){
+
+    function utils(): Utils
+    {
+        return new Utils;
+    }
+
+    function mail($from = "", $to = "", $subject = "", $message = "", $attachments = ""): Mail
+    {
         return new Mail($from, $to, $subject, $message, $attachments);
     }
 
@@ -162,7 +168,8 @@ class Tetra
         );
     }
 
-    function about(){
+    function about()
+    {
         return "Simple library for PHP apps";
     }
 }
