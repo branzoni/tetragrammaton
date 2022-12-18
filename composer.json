@@ -1,25 +1,31 @@
 {
-    "name": "branzoni/tet",    
+    "name": "branzoni/tet",
     "type": "library",
-    "stability":"stable",
-    "version":"0.0.1",
+    "stability": "stable",
+    "minimum-stability": "stable",
+    "version": "1.0.1",
     "description": "Simple library for PHP apps",
-    "keywords": ["php", "api", "app", "simple"],
+    "keywords": [
+        "php",
+        "api",
+        "app",
+        "simple"
+    ],
     "homepage": "https://github.com/branzoni/tetra",
     "license": "proprietary",
     "authors": [
         {
             "name": "Sergey Afanasyev",
-            "email": "sergey.v.afanasyev@gmail.com",            
+            "email": "sergey.v.afanasyev@gmail.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": ">=7.4"        
+        "php": ">=7.4"
     },
     "autoload": {
         "classmap": [
             "src/tet.php"
         ]
-    }    
+    }
 }
