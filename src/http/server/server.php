@@ -6,16 +6,9 @@ use Tetra\HTTP\Server\Request;
 
 class Server
 {
-    private $request;
-
-    function __construct()
-    {
-        $this->request = new Request;
-    }
-
     function request()
     {
-        return $this->request;
+        return new Request;
     }
 
     function protocol()

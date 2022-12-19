@@ -3,10 +3,7 @@
 
 namespace Tetra;
 
-use Exception;
-use Properless;
-
-class Prop extends Properless
+class Prop
 {
     private $value;
 
@@ -16,7 +13,7 @@ class Prop extends Properless
     }
 
     function get()
-    {
+    {        
         return $this->value;
     }
 

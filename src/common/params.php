@@ -2,9 +2,7 @@
 
 namespace Tetra;
 
-use ArrayObject;
 use Exception;
-use Properless;
 
 /**
  * Обеспечивает единообразную работу с ассоциированными массивами:
@@ -14,7 +12,7 @@ use Properless;
  * - количество ключей
  * @author Sergey Afanasyev <sergey.v.afanasyev@gmail.com>
  */
-class Params extends Properless
+class Params
 {
     private $data = [];
 

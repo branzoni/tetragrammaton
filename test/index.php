@@ -2,14 +2,17 @@
 
 use Tetra\Tetra;
 
-use function Tetra\HTTP\Client\b;
 
 include("../src/tet.php");
 
-$tet = new Tetra;
-//echo $tet->about();
+$app = new Tetra;
 
-$tet->client()->request()->header("qqq")->set("qqqq2");
-echo $tet->client()->request()->header("qqq");
+$app->app_closure =  "hi";
+echo $app->app_closure->ggg;
+$app->app_run();
 
-//$tet->mail()
+
+function hi(tetra $tetra){    
+    echo 5/0;
+    //return "hello, world!";
+}
