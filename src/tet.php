@@ -53,7 +53,6 @@ use Tet\Utils;
 
 class Tet
 {
-
     public Params $params;
     public FileSystem $fiesystem;
     public Router $router;
