@@ -1,6 +1,6 @@
 <?php
 
-namespace Tetra;
+namespace Tet;
 
 use Exception;
 
@@ -14,62 +14,75 @@ use Exception;
  */
 class Params
 {
-    private $data = [];
+    protected array $data;
 
-    
-    function set($propname, $value):bool
+    /**
+     *  Заполняет массив свойсв данными, переданными в параметре
+     */
+    function load(array $data): Bool
+    {
+        $this->data = $data;
+        return true;
+    }
+
+    function set(string $propname, $value): bool
     {
         $this->data[$propname] = $value;
         return true;
     }
 
-    function get($propname):mixed
+    function get(string $propname)
     {
-        if (!$this->is_set($propname)) throw new Exception("unknown property name '$propname'");
+        if (!$this->isSet($propname)) throw new Exception("unknown property name '$propname'");
         return $this->data[$propname];
+    }
+
+    function has(string $propname): bool
+    {
+        return $this->isExists($propname);
     }
 
     /**
      *  Проверяет наличие в массиве элемента с указанным именем
      */
-    function is_set($propname):bool
+    function isSet(string $propname): bool
+    {
+        return isset($this->data[$propname]);
+    }
+
+    function isExists(string $propname): bool
     {
         return array_key_exists($propname, $this->data);
     }
 
     /**Функция проверяет наличие параметра и что его значение находится в списке, если один из пунктов не выполняется, возвращает false*/
-    function is_valid($propname, $values):bool
+    function isKnown(string $propname, array $knownValues): bool
     {
-        if (!$this->is_set($propname)) return false;
-        if (array_search($this->$propname, $values) === false)  return false;
+        if (!$this->isSet($propname)) return false;
+        if (array_search($this->$propname, $knownValues) === false)  return false;
         return true;
     }
 
     /**
      *  Возвращает количество свойств в массиве свойств
      */
-    function count():Int
+    function getCount(): int
     {
-        return count($this->data);
+        return count($this->data ?? []);
     }
 
-    /**
-     *  Заполняет массив свойсв данными, переданными в параметре
-     */
-    function load($data):Bool
+    function getKeys(): array
     {
-        $this->data = $data;
-        return true;
+        return array_keys($this->data ?? []);
     }
 
-
-    function to_json():String
+    function toJSON(): string
     {
-        return json_encode($this->data);
+        return json_encode($this->data ?? []);
     }
 
-    function keys():Array
+    function toArray(): array
     {
-        return array_keys($this->data);
+        return $this->data ?? [];
     }
 }

@@ -1,38 +1,45 @@
 <?php
 
-namespace Tetra;
+namespace Tet;
 
-include("common/prop.php");
 include("common/params.php");
 include("common/result.php");
 include("common/utils.php");
 
-include("http/server/server.php");
-include("http/server/request.php");
-include("http/server/response.php");
-include("http/client/client.php");
-include("http/client/request.php");
-include("http/client/response.php");
+include("http/header.php");
+include("http/headers.php");
+
+include("http/server.php");
+include("http/serverrequest.php");
+
+include("http/client.php");
+include("http/clientrequest.php");
+include("http/Response.php");
 
 include("filesystem/filesystem.php");
-include("filesystem/filesystem_object.php");
+include("filesystem/path.php");
 include("filesystem/file.php");
+include("filesystem/directory.php");
 
-include("db/table.php");
-include("db/row.php");
-include("db/mysql.php");
-include("db/query.php");
+include("Database/table.php");
+include("Database/row.php");
+include("Database/mysql.php");
+include("Database/query.php");
 
-include("mail/mail.php");
+include("Mail/Mail.php");
+include("Common/Core.php");
+
+include("Routing/Router.php");
+include("Routing/Routes.php");
+include("Routing/Route.php");
 
 
-use Throwable;
-use Exception;
 use stdClass;
-use Tetra\HTTP\Server;
-use Tetra\HTTP\Client;
-use Tetra\Mail;
-use Tetra\Utils;
+use Tet\Core;
+use Tet\HTTP\Client;
+use Tet\HTTP\Server;
+use Tet\Mail;
+use Tet\Utils;
 
 /**
  * Обеспечивает необходимый функционал для разработки несложных API:
@@ -40,162 +47,93 @@ use Tetra\Utils;
  * - работа с базой MySQL
  * - работа с файлами
  * - формирование ответа в пользовательской функции
- * - поддержка шаблонизации Twig
  * @author Sergey V. Afanasyev <sergey.v.afanasyev@gmail.com>
  */
 
-class Tetra
-{
-    private $params;
-    private $server;
-    private $client;
-    private $mysql; // пременная для объекта работы с БД
-    private $filesystem;
 
-    public $app_error_report_email;
-    public $app_closure;
+class Tet
+{
+
+    public Params $params;
+    public FileSystem $fiesystem;
+    public Router $router;
+    public Server $server;
+    public Client $client;
+    public MySQL $mysql;
+
+
+    function autoload(string $path)
+    {
+        $fs = $this->fiesystem;
+        $files = $fs->getDirectory($path)->getFileList(["*.php"]);
+        foreach ($files as $key => $file) {
+            echo "$file<br>";
+            //include($file);
+        }
+    }
 
     function __construct()
     {
-        set_error_handler(function ($code, $message, $file, $line) {
+        (new Core)->setErrorHandler(function ($code, $message, $file, $line) {
             $tmp = new stdClass;
             $tmp->message = $message;
             $tmp->code = $code;
             $tmp->file = $file;
             $tmp->line = $line;
-            
-            $tmp= $this->error_handler($tmp);
-
-            $this->server()->send_response($tmp);
+            echo "!!!!!!!!!!!!!!!1";
+            $tmp = (new Core)->getDefaultErrorHandler($tmp);
+            (new Server)->sendResponse($tmp);
             exit;
         });
+
+        $this->params = new Params;
+        $this->fiesystem = new FileSystem;
+        $this->server = new Server;
+        $this->client = new Client;
+        $this->router = new Router;
     }
 
-    function params(): Params
+    function Mail(): Mail
     {
-        $this->params = $this->params ?? new Params;
-        return $this->params;
+        return new Mail;
     }
 
-
-    function server(): Server
-    {
-        $this->server = $this->server ?? new Server;
-        return $this->server;
-    }
-
-    function client(): Client
-    {
-        $this->client = $this->client ?? new Client;
-        return $this->client;
-    }
-
-    function mysql(): MySQL
-    {
-        $this->mysql = $this->mysql ?? new MySQL;
-        return $this->mysql;
-    }
-
-
-    function filesystem(): FileSystem
-    {
-        $this->filesystem = $this->filesystem ?? new FileSystem;
-        return $this->filesystem;
-    }
-
-    function mail($from = "", $to = "", $subject = "", $message = "", $attachments = "")
-    {
-        return new Mail($from, $to, $subject, $message, $attachments);
-    }
-
-    function utils(): Utils
+    function Utils(): Utils
     {
         return new Utils;
     }
 
-    function about()
+    function run(): bool
     {
-        return "Simple library for PHP apps";
-    }
+        $requestedURI = $this->router->getRequestedURI();
+        foreach ($this->router->routes as $route) {
+            if ($route->uri == $requestedURI) {
+                switch (gettype($route->callback)) {
+                    case 'object':
+                    case 'array':
+                        echo call_user_func($route->callback, $this);
+                        break;
+                    default:
+                        echo $route->callback;
+                };
+                return true;
+            }
+        }
 
-    /**
-     * функция-заглушка для быстрого ответа на некорректный запрос
-     */
-
-    function throw_exception(String $message): Result
-    {
-        throw new Exception($message);
-        return new Result;
-    }
-
-    // методы приложения
-
-    function app_error_report_email(): prop
-    {
-        $this->app_error_report_email = $this->app_error_report_email ?? new Prop;
-        return $this->app_error_report_email;
-    }
-
-    function app_closure(): prop
-    {
-        $this->app_closure = $this->app_closure ?? new Prop;
-        return $this->app_closure;
-        // return $this->try(function(){
-        //     return $this->app_closure;
-        // });
+        return true;
     }
 
     /**
      * Возвращает ответ на основе пользовательской функции, указанной при конфигурации движка
      */
-    function app_run(): Bool
+    function run2($closure = null): Bool
     {
+        $tmp = (new Core)->try(function () use ($closure) {
+            return call_user_func($closure, $this);
+        });
 
-        $tmp = function () {
-            if (!$this->app_closure)  return $this->throw_exception("'app_closure' property not set (#1)");
-            if ($this->app_closure == "")  return $this->throw_exception("'app_closure' property not set (#2)");
+        (new Server)->sendResponse($tmp);
 
-            return call_user_func($this->app_closure->get(), $this);
-        };
-
-        $tmp = $this->try($tmp);
-        $this->server()->send_response($tmp);
         return true;
-    }
-
-    function try($closure)
-    {
-        try {
-            $tmp = $closure();            
-        } catch (Throwable $e) {
-            $tmp = new stdClass;
-            $tmp->message = $e->getMessage();
-            $tmp->code = $e->getCode();
-            $tmp->file = $e->getFile();
-            $tmp->line = $e->getLine();            
-            $tmp = $this->error_handler($tmp);
-        }
-
-        return $tmp;
-    }
-
-    function error_handler($e)
-    {
-        $tmp = new Result;
-        $tmp->error = true;
-        $tmp->result = false;
-        $tmp->description = $e->message;
-        $tmp->data = (array) $e;
-        $tmp->request = $this->server()->request()->params();
-        $tmp->url = $this->server()->request()->uri();
-        $tmp->method = $this->server()->request()->method();
-        $tmp = json_encode($tmp);
-
-        // отправляем отчет
-        if (!$this->app_error_report_email || $this->app_error_report_email != "") {
-            $this->mail("", $this->app_error_report_email, "tetra error", $tmp);
-        };
-
-        return $tmp;
     }
 }

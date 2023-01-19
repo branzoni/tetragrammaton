@@ -1,17 +1,20 @@
 <?php
 
-namespace Tetra\HTTP;
-
-use Tetra\HTTP\Server\Request;
+namespace Tet\HTTP;
 
 class Server
 {
-    function request()
+
+    public function getRequest()
     {
-        return new Request;
+        return new ServerRequest;
     }
 
-    function protocol()
+    public function getIP()
+    {
+        return $_SERVER['SERVER_ADDR'];
+    }
+    public function getProtocol()
     {
         $tmp = $_SERVER["SERVER_PROTOCOL"];
         $tmp = explode("/", $tmp);
@@ -25,34 +28,45 @@ class Server
         return $tmp;
     }
 
-    function host()
+    public function getHost()
     {
         $tmp = $_SERVER["HTTP_HOST"] ?? "";
         $tmp = strtolower($tmp);
         return $tmp;
     }
 
-    function port()
+    public function getPort()
     {
         return $_SERVER["SERVER_PORT"];
     }
 
-    function name()
+    public function getName()
     {
         return $_SERVER["SERVER_NAME"];
     }
 
-    function root($local = true)
+
+
+    public function getRoot($local = true)
     {
         if ($local) return $_SERVER['DOCUMENT_ROOT'];
 
-        $host = $this->host();
-        if ($host == "localhost") return $this->protocol() . "://" . $host . ":" . $this->port();
-        if ($host = "localhost") return $this->protocol() . "://" . $host;
+        $host = $this->getHost();
+        if ($host == "localhost") return $this->getProtocol() . "://" . $host . ":" . $this->getPort();
+        //if ($host = "localhost") return $this->getProtocol() . "://" . $host;
     }
 
-    function send_response($content = "", $code = 200, $headers = [])
+    function getRequestedURI(): string
     {
+        return $_SERVER['REQUEST_URI'];
+    }
+
+    //function sendResponse(string $body = "", $code = 200, $headers = [])
+
+    function sendResponse($content = "", $code = 200, $headers = [])
+    {
+
+
         http_response_code($code);
 
         foreach ($headers as $header) {
@@ -63,7 +77,7 @@ class Server
     }
 
     // отправить клиенту данные как файл на скачивание
-    function send_file($file_name, $data): Bool
+    function sendFile($file_name, $data): Bool
     {
 
         if (ob_get_level()) ob_end_clean();

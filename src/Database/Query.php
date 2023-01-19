@@ -1,8 +1,8 @@
 <?php
 
-namespace Tetra;
+namespace Tet;
 
-use Tetra\Table;
+use Tet\Table;
 
 class Query
 {
@@ -13,7 +13,7 @@ class Query
 		$this->table = $table;
 	}
 
-	function build_query(): String
+	function buildQuery(): String
 	{
 		// функция обертка для формирования строки запроса
 
@@ -21,36 +21,36 @@ class Query
 
 		switch ($this->table->command) {
 			case "delete":
-				$query = $this->build_delete_query();
+				$query = $this->buildDeleteQuery();
 				break;
 			case "select":
-				$query = $this->build_select_query();
+				$query = $this->buildSelectQuery();
 				break;
 			case 'insert':
-				$query = $this->build_insert_query();
+				$query = $this->buildInsertQuery();
 				break;
 			case 'update':
-				$query = $this->build_update_query();
+				$query = $this->buildUpdateQuery();
 				break;
 		}
 
 		return $query;
 	}
 
-	private function build_delete_query(): String
+	private function buildDeleteQuery(): String
 	{
-		$where_section = $this->get_where_section();
+		$where_section = $this->getWhereSection();
 
 		return "DELETE FROM `{$this->table->name}` $where_section";
 	}
 
-	private function build_select_query(): String
+	private function buildSelectQuery(): String
 	{
 		// перечисляем название поле		
 
-		$fields_section = $this->get_fields_section();
-		$where_section = $this->get_where_section();
-		$order_section = $this->get_order_section();
+		$fields_section = $this->getFieldsSection();
+		$where_section = $this->getWhereSection();
+		$order_section = $this->getOrderSection();
 
 		// финальная сборка частей
 		$query = "SELECT $fields_section FROM `{$this->table->name}` $where_section $order_section";
@@ -58,11 +58,11 @@ class Query
 		return $query;
 	}
 
-	private function build_insert_query(): String
+	private function buildInsertQuery(): String
 	{
 
 
-		$fields = $this->table->fields->get_all();
+		$fields = $this->table->fields->getFields();
 		$fields_count = count($fields);
 		$fields_string = "";
 
@@ -99,7 +99,7 @@ class Query
 				}
 			}
 
-			$values_string .= $quote . $this->escape_string($value) . $quote;
+			$values_string .= $quote . $this->escapeString($value) . $quote;
 			if ($n < $fields_count) $values_string .= ", ";
 		}
 
@@ -108,25 +108,25 @@ class Query
 		return $query;
 	}
 
-	private function build_update_query(): String
+	private function buildUpdateQuery(): String
 	{
-		$fields_section = $this->get_update_section();
-		$where_section = $this->get_where_section();
+		$fields_section = $this->getUpdateSection();
+		$where_section = $this->getWhereSection();
 
 		return "UPDATE `{$this->table->name}` SET $fields_section $where_section";
 	}
 
-	private function get_fields_section(): String
+	private function getFieldsSection(): String
 	{
-		$tmp = $this->table->fields->get_all();
+		$tmp = $this->table->fields->getFields();
 		$tmp =  "`" . implode('`, `', $tmp) . "`";
 		$tmp = str_replace("`*`", "*", $tmp);
 		return $tmp;
 	}
 
 
-	function get_update_section(){
-		$fields = $this->table->fields->get_all();
+	function getUpdateSection(){
+		$fields = $this->table->fields->getFields();
 		$fields_count = count($fields);	
 		$fields_section = "";
 
@@ -150,7 +150,7 @@ class Query
 				}
 			}
 
-			$fields_section .= "`$field_name` = " . $quote . $this->escape_string($value) . $quote;
+			$fields_section .= "`$field_name` = " . $quote . $this->escapeString($value) . $quote;
 			if ($n < $fields_count) $fields_section .= ", ";
 		}
 
@@ -158,19 +158,19 @@ class Query
 
 	}
 
-	private function get_where_section(): String
+	private function getWhereSection(): String
 	{
-		if ($this->table->where) return "WHERE " . $this->escape_string($this->table->where);
+		if ($this->table->where) return "WHERE " . $this->escapeString($this->table->where);
 		else return "";
 	}
 
-	private function get_order_section(): String
+	private function getOrderSection(): String
 	{
 		if ($this->table->order) return " ORDER BY {$this->table->order}";
 		else return "";
 	}
 
-	private function escape_string($string): String
+	private function escapeString($string): String
 	{
 		return mysqli_real_escape_string($this->table->connection, $string);
 	}

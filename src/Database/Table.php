@@ -2,9 +2,9 @@
 
 // класс для работы с таблицей
 
-namespace Tetra;
+namespace Tet;
 
-use Tetra\Query;
+use Tet\Query;
 
 class Table
 {
@@ -21,7 +21,7 @@ class Table
 	}
 
 
-	function get_field_names()
+	function getFieldNames()
 	{
 		$tmp = $this->execute("DESCRIBE " . $this->name, MYSQLI_ASSOC);
 		$tmp = $tmp->data;
@@ -29,17 +29,17 @@ class Table
 		return $tmp;
 	}
 
-	function get_query(): String
+	function getQuery(): String
 	{
-		return (new Query($this))->build_query();
+		return (new Query($this))->buildQuery();
 	}
 
-	function duplicate_record($id_field_name, $id_field_value): Result
+	function duplicateRecord($idFieldName, $idFieldValue): Result
 	{
-				
-		$fields_string = implode(", ", $this->get_field_names());
 
-		$query = "INSERT INTO `" . $this->name . "` ($fields_string) SELECT " . str_replace($id_field_name, "NULL", $fields_string) . " FROM `" . $this->name . "` WHERE `" . $id_field_name . "` = " . $id_field_value;
+		$fieldsString = implode(", ", $this->getFieldNames());
+
+		$query = "INSERT INTO `" . $this->name . "` ($fieldsString) SELECT " . str_replace($idFieldName, "NULL", $fieldsString) . " FROM `" . $this->name . "` WHERE `" . $idFieldName . "` = " . $idFieldValue;
 
 		return $this->execute($query);
 	}
@@ -47,32 +47,32 @@ class Table
 	function insert(): Result
 	{
 		$this->command = "insert";
-		$query = (new Query($this))->build_query();
+		$query = (new Query($this))->buildQuery();
 		return $this->execute($query);
 	}
 
 	function update(): Result
 	{
 		$this->command = "update";
-		$query = (new Query($this))->build_query();
+		$query = (new Query($this))->buildQuery();
 		return $this->execute($query);
 	}
 
 	function delete(): Result
 	{
 		$this->command = "delete";
-		$query = (new Query($this))->build_query();
+		$query = (new Query($this))->buildQuery();
 		return $this->execute($query);
 	}
 
 	function select(): Result
 	{
 		$this->command = "select";
-		$query = (new Query($this))->build_query();
+		$query = (new Query($this))->buildQuery();
 		return $this->execute($query, MYSQLI_ASSOC);
 	}
 
-	function execute($query, int $mode = MYSQLI_NUM): Result
+	function execute(string $query, int $mode = MYSQLI_NUM): Result
 	{
 		$result = new Result;
 		$result->query =  $query;
@@ -93,6 +93,4 @@ class Table
 		$result->data = $query_result;
 		return $result;
 	}
-
-	// КОНЕЦ КЛАССА
 }

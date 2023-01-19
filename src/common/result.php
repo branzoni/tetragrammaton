@@ -1,6 +1,6 @@
 <?php
 
-namespace Tetra;
+namespace Tet;
 
 use stdClass;
 

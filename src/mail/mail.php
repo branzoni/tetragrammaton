@@ -1,19 +1,19 @@
 <?php
-namespace Tetra;
+namespace Tet;
 
 class Mail{
-    private $from;
-    private $to;
-    private $subject;
-    private $message;
-    private $attachments;
+    public  string $from;
+    public string $to;
+    public string $subject;
+    public string $message;
+    public string $attachments;
 
     function __construct($from="", $to="", $subject="", $message="", $attachments="")
     {
         $this->from = $from;
         $this->to = $to;
         $this->subject = $subject;
-        $this->body = $message;
+        $this->message = $message;
         $this->attachments= $attachments;
     }
 

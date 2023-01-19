@@ -1,6 +1,6 @@
 <?php
 
-namespace Tetra;
+namespace Tet;
 
 class Row
 {
@@ -21,17 +21,17 @@ class Row
 		return $this->fields[$name];
 	}
 
-	function set_all($value)
+	function setFields($value)
 	{
 		$this->fields = $value;
 	}
 
-	function get_all()
+	function getFields()
 	{
 		return $this->fields;
 	}
 
-	function get_all_count()
+	function getFieldsCount()
 	{
 		return count($this->fields);
 	}

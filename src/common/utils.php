@@ -1,11 +1,11 @@
 <?php
 
-namespace Tetra;
+namespace Tet;
 
 class Utils
 {
 
-    function get_random_string($length = 40, $keyspace = ""): String
+    function getRandomString($length = 40, $keyspace = ""): String
     {
         //возвращает строку из произвольного количества случайных символов
         if ($keyspace = "") $keyspace = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -19,4 +19,5 @@ class Utils
 
         return $tmp;
     }
+    
 }

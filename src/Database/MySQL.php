@@ -1,6 +1,6 @@
 <?php
 
-namespace Tetra;
+namespace Tet;
 
 class MySQL
 {
@@ -41,7 +41,7 @@ class MySQL
     /**
      *Возвращает экранированную строку 
     */
-    private function escape_string($string)
+    private function escapeString($string)
     {
         return mysqli_real_escape_string($this->connection, $string);
     }
