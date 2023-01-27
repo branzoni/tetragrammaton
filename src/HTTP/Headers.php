@@ -6,67 +6,67 @@ use Tet\Params;
 
 class Headers extends Params
 {
-    function setContentDescriptionHeader($value){
+    function setContentDescription($value){
         $this->data["Content-Description"] = $value;
     }
 
-    function setContentTypeHeader($value){
+    function setContentType($value){
         $this->data["Content-Type"] = $value;
     }
 
-    function setContentLengthHeader($value){
+    function setContentLength($value){
         $this->data["Content-Length"] = $value;
     }
 
-    function setContentDispositionHeader($value){
+    function setContentDisposition($value){
         $this->data["Content-Disposition"] = $value;
     }
 
-    function setContentTransferEncodingHeader($value){
+    function setContentTransferEncoding($value){
         $this->data["Content-Transfer-Encoding"] = $value;
     }
 
-    function setExpiresHeader($value){
+    function setExpires($value){
         $this->data["Expires"] = $value;
     }
 
-    function setCacheControlHeader($value){
+    function setCacheControl($value){
         $this->data["Cache-Control"] = $value;
     }
 
-    function setPragmaHeader($value){
+    function setPragma($value){
         $this->data["Pragma"] = $value;
     }    
 
-    function getContentDescriptionHeader(){
+    function getContentDescription(){
         return $this->data["Content-Description"];
     }
 
-    function getContentTypeHeader(){
+    function getContentType(){
         return  $this->data["Content-Type"];
     }
 
-    function getContentLengthHeader(){
+    function getContentLength(){
         return $this->data["Content-Length"];
     }
 
-    function getContentDispositionHeader(){
+    function getContentDisposition(){
         return $this->data["Content-Disposition"];
     }
 
-    function getContentTransferEncodingHeader(){
+    function getContentTransferEncoding(){
         return $this->data["Content-Transfer-Encoding"];
     }   
 
-    function getCacheControlHeader(){
+    function getCacheControl(){
         return $this->data["Cache-Control"];
     }
 
-    function getPragmaHeader(){
+    function getPragma(){
         return $this->data["Pragma"];
     }    
 
-    function getExpiresHeader(){
+    function getExpires(){
         return $this->data["Expires"];
     }
 }

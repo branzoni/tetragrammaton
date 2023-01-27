@@ -2,45 +2,45 @@
 
 namespace Tet;
 
-include("common/params.php");
-include("common/result.php");
-include("common/utils.php");
+include("Common/Collection.php");
+include("Common/Params.php");
+include("Common/Result.php");
+include("Common/Utils.php");
+include("Common/ErrorHandler.php");
+include("Common/Fasades.php");
 
-include("http/header.php");
-include("http/headers.php");
+include("HTTP/Header.php");
+include("HTTP/Headers.php");
 
-include("http/server.php");
-include("http/serverrequest.php");
+include("HTTP/Server.php");
+include("HTTP/ServerRequest.php");
 
-include("http/client.php");
-include("http/clientrequest.php");
-include("http/Response.php");
+include("HTTP/Client.php");
+include("HTTP/ClientRequest.php");
+include("HTTP/Response.php");
 
-include("filesystem/filesystem.php");
-include("filesystem/path.php");
-include("filesystem/file.php");
-include("filesystem/directory.php");
+include("Filesystem/Filesystem.php");
+include("Filesystem/Path.php");
+include("Filesystem/File.php");
+include("Filesystem/Directory.php");
 
-include("Database/table.php");
-include("Database/row.php");
-include("Database/mysql.php");
-include("Database/query.php");
+include("Database/Db.php");
+include("Database/FieldCollection.php");
+include("Database/Table.php");
+include("Database/Row.php");
+include("Database/Mysql.php");
+include("Database/Query.php");
 
 include("Mail/Mail.php");
-include("Common/Core.php");
+
 
 include("Routing/Router.php");
 include("Routing/Routes.php");
 include("Routing/Route.php");
 
 
-use stdClass;
-use Tet\Core;
-use Tet\HTTP\Client;
-use Tet\HTTP\Server;
-use Tet\Mail;
-use Tet\Utils;
-
+use Tet\HTTP\Response;
+use Tet\Routing\Route;
 /**
  * Обеспечивает необходимый функционал для разработки несложных API:
  * - получение параметров запроса
@@ -50,89 +50,59 @@ use Tet\Utils;
  * @author Sergey V. Afanasyev <sergey.v.afanasyev@gmail.com>
  */
 
-
 class Tet
 {
-    public Params $params;
-    public FileSystem $fiesystem;
-    public Router $router;
-    public Server $server;
-    public Client $client;
-    public MySQL $mysql;
 
-
-    function autoload(string $path)
-    {
-        $fs = $this->fiesystem;
-        $files = $fs->getDirectory($path)->getFileList(["*.php"]);
-        foreach ($files as $key => $file) {
-            echo "$file<br>";
-            //include($file);
-        }
-    }
+    protected Router $router;
+    protected Fasades $fasades;
 
     function __construct()
     {
-        (new Core)->setErrorHandler(function ($code, $message, $file, $line) {
-            $tmp = new stdClass;
-            $tmp->message = $message;
-            $tmp->code = $code;
-            $tmp->file = $file;
-            $tmp->line = $line;
-            echo "!!!!!!!!!!!!!!!1";
-            $tmp = (new Core)->getDefaultErrorHandler($tmp);
-            (new Server)->sendResponse($tmp);
-            exit;
-        });
-
-        $this->params = new Params;
-        $this->fiesystem = new FileSystem;
-        $this->server = new Server;
-        $this->client = new Client;
-        $this->router = new Router;
+        (new ErrorHandler)->setErrorHandler();
+        (new ErrorHandler)->setExeptionHandler();
     }
 
-    function Mail(): Mail
+
+    // function autoload(string $path)
+    // {
+    //     $files = (new FileSystem)->getDirectory($path)->getFileList(["*.php"]);
+    //     foreach ($files as $key => $file) {
+    //         //include($file);
+    //     }
+    // }
+
+
+    function getRouter(): Router
     {
-        return new Mail;
+        if (!isset($this->router)) $this->router = new Router;
+        return $this->router;
     }
 
-    function Utils(): Utils
+    function getFasades(): Fasades
     {
-        return new Utils;
+        if (!isset($this->fasades)) $this->fasades = new Fasades;
+        return $this->fasades;
     }
 
     function run(): bool
     {
-        $requestedURI = $this->router->getRequestedURI();
-        foreach ($this->router->routes as $route) {
-            if ($route->uri == $requestedURI) {
-                switch (gettype($route->callback)) {
-                    case 'object':
-                    case 'array':
-                        echo call_user_func($route->callback, $this);
-                        break;
-                    default:
-                        echo $route->callback;
-                };
-                return true;
-            }
-        }
-
+        $route = $this->router->getMatchedRoute();
+        if (!$route) return false; 
+        $response = $this->executeRouteCallback($route);       
+        $this->fasades->getServer()->sendResponse($response);
         return true;
     }
 
-    /**
-     * Возвращает ответ на основе пользовательской функции, указанной при конфигурации движка
-     */
-    function run2($closure = null): Bool
+    private function executeRouteCallback(Route $route):Response
     {
-        $tmp = (new Core)->try(function () use ($closure) {
-            return call_user_func($closure, $this);
-        });
-
-        (new Server)->sendResponse($tmp);
-
-        return true;
+        switch (gettype($route->callback)) {
+            case 'object':
+            case 'array':
+                return call_user_func_array($route->callback, array($this->fasades, $route->getArguments()));
+                break;
+            default:
+                return $route->callback;
+        };
     }
+
 }

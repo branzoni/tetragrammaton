@@ -20,56 +20,22 @@ class Table
 		$this->fields = new Row;
 	}
 
+	function addRow(Row $row): bool
+	{
+		return true;
+	}
 
-	function getFieldNames()
+	function deleteRow(int $rowId):bool
+	{
+		return true;
+	}
+
+	function getFieldNames(): array
 	{
 		$tmp = $this->execute("DESCRIBE " . $this->name, MYSQLI_ASSOC);
 		$tmp = $tmp->data;
 		$tmp = array_column((array) $tmp, "Field");
 		return $tmp;
-	}
-
-	function getQuery(): String
-	{
-		return (new Query($this))->buildQuery();
-	}
-
-	function duplicateRecord($idFieldName, $idFieldValue): Result
-	{
-
-		$fieldsString = implode(", ", $this->getFieldNames());
-
-		$query = "INSERT INTO `" . $this->name . "` ($fieldsString) SELECT " . str_replace($idFieldName, "NULL", $fieldsString) . " FROM `" . $this->name . "` WHERE `" . $idFieldName . "` = " . $idFieldValue;
-
-		return $this->execute($query);
-	}
-
-	function insert(): Result
-	{
-		$this->command = "insert";
-		$query = (new Query($this))->buildQuery();
-		return $this->execute($query);
-	}
-
-	function update(): Result
-	{
-		$this->command = "update";
-		$query = (new Query($this))->buildQuery();
-		return $this->execute($query);
-	}
-
-	function delete(): Result
-	{
-		$this->command = "delete";
-		$query = (new Query($this))->buildQuery();
-		return $this->execute($query);
-	}
-
-	function select(): Result
-	{
-		$this->command = "select";
-		$query = (new Query($this))->buildQuery();
-		return $this->execute($query, MYSQLI_ASSOC);
 	}
 
 	function execute(string $query, int $mode = MYSQLI_NUM): Result
@@ -92,5 +58,15 @@ class Table
 		$result->data = $query;
 		$result->data = $query_result;
 		return $result;
+	}
+
+	function duplicate($idFieldName, $idFieldValue): Result
+	{
+
+		$fieldsString = implode(", ", $this->getFieldNames());
+
+		$query = "INSERT INTO `" . $this->name . "` ($fieldsString) SELECT " . str_replace($idFieldName, "NULL", $fieldsString) . " FROM `" . $this->name . "` WHERE `" . $idFieldName . "` = " . $idFieldValue;
+
+		return $this->execute($query);
 	}
 }

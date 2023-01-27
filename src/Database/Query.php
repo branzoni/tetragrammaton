@@ -2,176 +2,196 @@
 
 namespace Tet;
 
-use Tet\Table;
+class WhereCondition
+{
+	function is($key, $value)
+	{
+	}
+
+	function and($key, $value)
+	{
+	}
+
+	function or($key, $value)
+	{
+	}
+}
 
 class Query
 {
-	private $table;
+	public string $tablename;
+	public string $command;
+	public FieldCollection $fields;
+	public $where;
+	public $orderBy;
 
-	function __construct(Table $table)
+	const COMMAND_SELECT = "SELECT";
+	const COMMAND_INSERT = "INSERT";
+	const COMMAND_UPDATE = "UPDATE";
+	const COMMAND_DELETE = "DELETE";
+
+	// function orderBy(...$values)
+	// {
+	// 	$this->orderBy = new Collection;
+	// 	$this->orderBy->add($values);
+	// }
+
+	function __construct()
 	{
-		$this->table = $table;
+		$this->fields = new FieldCollection;
 	}
 
-	function buildQuery(): String
+	function __toString(): string
 	{
-		// функция обертка для формирования строки запроса
+		return $this->getQueryString();
+	}
 
+	private function getQueryString(): string
+	{
+
+		// функция обертка для формирования строки запроса
 		$query = "";
 
-		switch ($this->table->command) {
-			case "delete":
-				$query = $this->buildDeleteQuery();
+		switch ($this->command) {
+			case $this::COMMAND_SELECT:
+				$query = $this->getSelectQuery();
 				break;
-			case "select":
-				$query = $this->buildSelectQuery();
+			case $this::COMMAND_INSERT:
+				$query = $this->getInsertQuery();
 				break;
-			case 'insert':
-				$query = $this->buildInsertQuery();
+			case $this::COMMAND_UPDATE:
+				$query = $this->getUpdateQuery();
 				break;
-			case 'update':
-				$query = $this->buildUpdateQuery();
+			case $this::COMMAND_DELETE:
+				$query = $this->getDeleteQuery();
 				break;
 		}
 
 		return $query;
 	}
 
-	private function buildDeleteQuery(): String
-	{
-		$where_section = $this->getWhereSection();
-
-		return "DELETE FROM `{$this->table->name}` $where_section";
-	}
-
-	private function buildSelectQuery(): String
+	private function getSelectQuery(): string
 	{
 		// перечисляем название поле		
 
-		$fields_section = $this->getFieldsSection();
+		$fields_section = "";
+		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section) {
+			$comma = $counter < $count ? ", " : "";
+			if ($value != "*") $value = "`$value`";
+			$fields_section = "{$fields_section}{$value}{$comma}";
+		});
+
 		$where_section = $this->getWhereSection();
 		$order_section = $this->getOrderSection();
 
 		// финальная сборка частей
-		$query = "SELECT $fields_section FROM `{$this->table->name}` $where_section $order_section";
+		$query = $this::COMMAND_SELECT . " $fields_section FROM `{$this->tablename}` $where_section $order_section";
 		$query = trim($query);
 		return $query;
 	}
 
-	private function buildInsertQuery(): String
+	private function getInsertQuery(): string
 	{
+		$fields_section = "";
+		$values_section = "";
+		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section, &$values_section) {
 
 
-		$fields = $this->table->fields->getFields();
-		$fields_count = count($fields);
-		$fields_string = "";
+			$comma = $counter < $count ? ", " : "";
+			$fields_section = "{$fields_section} `$key`{$comma}";
 
-		$n = 0;
-		// перебираем поля
-		foreach ($fields as $key => $value) {
-			$n = $n + 1;
+			$quote = $this->getQuote($value);
+			$value = $this->escapeString($value);
+			$values_section = "{$values_section}{$quote}{$value}{$quote}{$comma}";
+		});
 
-			$key = str_replace("__STRING", "|STRING", $key);
-			$key_arr = explode('|', $key);
-			$field_name = $key_arr[0];
-			$fields_string .= "`" . $field_name . "`";
-			if ($n < $fields_count) $fields_string .= ", ";
-		}
-
-		$values_string = "";
-		$n = 0;
-
-		// перебираем поля
-		foreach ($fields as $key => $value) {
-			$n = $n + 1;
-			$key = str_replace("__STRING", "|STRING", $key);
-			$key_arr = explode('|', $key);
-			if (!isset($key_arr[1])) {
-				$quote = "";
-			} else {
-				// указан тип поля, определяем необходимость кавычек
-				switch ($key_arr[1]) {
-					case "STRING":
-						$quote = "'";
-						break;
-					default:
-						$quote = "";
-				}
-			}
-
-			$values_string .= $quote . $this->escapeString($value) . $quote;
-			if ($n < $fields_count) $values_string .= ", ";
-		}
-
-		// финальная сборка частей
-		$query = "INSERT INTO `{$this->table->name}` ($fields_string) VALUES ($values_string)";
-		return $query;
+		return $this::COMMAND_INSERT . " INTO `{$this->tablename}` ($fields_section) VALUES ($values_section)";
 	}
 
-	private function buildUpdateQuery(): String
+	private function getUpdateQuery(): string
 	{
-		$fields_section = $this->getUpdateSection();
+		$fields_section = "";
+		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section) {
+
+			$comma = $counter < $count ? ", " : "";
+			$quote = $this->getQuote($value);
+			$value = $this->escapeString($value);
+			$fields_section = "{$fields_section} `$key` = {$quote}{$value}{$quote}{$comma}";
+		});
+
 		$where_section = $this->getWhereSection();
 
-		return "UPDATE `{$this->table->name}` SET $fields_section $where_section";
+		return $this::COMMAND_UPDATE . " `{$this->tablename}` SET {$fields_section} {$where_section}";
 	}
 
-	private function getFieldsSection(): String
+	private function getDeleteQuery(): string
 	{
-		$tmp = $this->table->fields->getFields();
-		$tmp =  "`" . implode('`, `', $tmp) . "`";
-		$tmp = str_replace("`*`", "*", $tmp);
-		return $tmp;
-	}
+		$where_section = $this->getWhereSection();
 
-
-	function getUpdateSection(){
-		$fields = $this->table->fields->getFields();
-		$fields_count = count($fields);	
-		$fields_section = "";
-
-		$n = 0;
-
-		foreach ($fields as $key => $value) {
-			$n = $n + 1;
-			$key = str_replace("__STRING", "|STRING", $key);
-			$key_arr = explode('|', $key);
-			$field_name = $key_arr[0];
-			if (!isset($key_arr[1])) {
-				$quote = "";
-			} else {
-				// указан тип поля, определяем необходимость кавычек
-				switch ($key_arr[1]) {
-					case "STRING":
-						$quote = "'";
-						break;
-					default:
-						$quote = "";
-				}
-			}
-
-			$fields_section .= "`$field_name` = " . $quote . $this->escapeString($value) . $quote;
-			if ($n < $fields_count) $fields_section .= ", ";
-		}
-
-		return $fields_section;
-
+		return $this::COMMAND_DELETE . " FROM `{$this->tablename}` {$where_section}";
 	}
 
 	private function getWhereSection(): String
 	{
-		if ($this->table->where) return "WHERE " . $this->escapeString($this->table->where);
+		if ($this->where) return "WHERE " . $this->escapeString($this->where);
 		else return "";
 	}
 
-	private function getOrderSection(): String
+	private function getOrderSection(): string
 	{
-		if ($this->table->order) return " ORDER BY {$this->table->order}";
-		else return "";
+		switch(gettype($this->orderBy))
+		{
+			case "string":
+				$arr = explode(",", $this->orderBy);			
+				$this->orderBy = (new Collection);
+				$this->orderBy->add($arr);
+				break;
+			case "array":
+				$tmp = $this->orderBy;
+				$this->orderBy = (new Collection);
+				$this->orderBy->add($tmp);
+				break;
+		}
+		
+		if (!$this->orderBy) return "";
+		if (!$this->orderBy->getCount()) return "";
+
+		$order_section = "";
+		$this->orderBy->forEach(function ($key, $value, $count, $counter) use (&$order_section) {
+			$comma = $counter < $count ? ", " : "";
+			if (strpos($value, "DESC") !== false) {
+				$value = str_replace("DESC", "", $value);
+				$value = trim($value);
+				$value = "`$value` DESC";
+			} else {
+				$value = "`$value`";
+			}
+
+			$order_section = "{$order_section} {$value}{$comma}";
+		});
+
+		$order_section = str_replace("``", "`", $order_section);
+
+		return " ORDER BY {$order_section}";
 	}
 
-	private function escapeString($string): String
+	private function escapeString(string $string): string
 	{
-		return mysqli_real_escape_string($this->table->connection, $string);
+		return $string;
+		//return mysqli_real_escape_string($this->connection, $string);
+	}
+
+	private function getQuote($value)
+	{
+
+		switch (gettype($value)) {
+			case 'string':
+				$quote = "'";
+				break;
+			default:
+				$quote = "";
+		}
+
+		return $quote;
 	}
 }

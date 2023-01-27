@@ -2,15 +2,15 @@
 
 namespace Tet;
 
+use ArrayObject;
 use Tet\HTTP\Server;
 use Tet\Routing\Route;
 use Tet\Routing\Routes;
 
 class Router
 {
-    public Routes $routes;
-    public Path $root;
-    public int $count;
+    public ArrayObject $routes;
+    public int $count = 0;
 
     function __construct()
     {
@@ -39,10 +39,19 @@ class Router
         return $this->addRoute(new Route("post", $path, $calback));        
     }
 
-    
-    function getRequestedURI(): string
-    {
-        $tmp = (new Server)->getRequestedURI();
-        return str_replace($this->root->getRelativePath(), "", $tmp);
+    function getMatchedRoute(): ?Route
+    {        
+        if (!$this->routes) (new ErrorHandler)->throwException("no router init");
+        if ($this->count == 0) (new ErrorHandler)->throwException("no router setted");
+
+        foreach ($this->routes as $route) {
+            // простое совпадение            
+            if ($route->isRequested()) return $route;
+            // получение аргументов включает проверку сложного совпадения роутов
+            $args = $route->getArguments();            
+            if ($args) return $route;
+        }
+
+        return null;
     }
 }

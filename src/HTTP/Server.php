@@ -4,17 +4,16 @@ namespace Tet\HTTP;
 
 class Server
 {
-
-    public function getRequest()
+    public function getRequest(): ServerRequest
     {
         return new ServerRequest;
     }
 
-    public function getIP()
+    public function getIP(): string
     {
         return $_SERVER['SERVER_ADDR'];
     }
-    public function getProtocol()
+    public function getProtocol(): string
     {
         $tmp = $_SERVER["SERVER_PROTOCOL"];
         $tmp = explode("/", $tmp);
@@ -28,32 +27,29 @@ class Server
         return $tmp;
     }
 
-    public function getHost()
+    public function getHost(): string
     {
         $tmp = $_SERVER["HTTP_HOST"] ?? "";
         $tmp = strtolower($tmp);
         return $tmp;
     }
 
-    public function getPort()
+    public function getPort(): string
     {
         return $_SERVER["SERVER_PORT"];
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $_SERVER["SERVER_NAME"];
     }
 
-
-
-    public function getRoot($local = true)
+    public function getRoot($local = true): string
     {
         if ($local) return $_SERVER['DOCUMENT_ROOT'];
 
         $host = $this->getHost();
-        if ($host == "localhost") return $this->getProtocol() . "://" . $host . ":" . $this->getPort();
-        //if ($host = "localhost") return $this->getProtocol() . "://" . $host;
+        if ($host == "localhost") return $this->getProtocol() . "://" . $host . ":" . $this->getPort();        
     }
 
     function getRequestedURI(): string
@@ -61,37 +57,27 @@ class Server
         return $_SERVER['REQUEST_URI'];
     }
 
-    //function sendResponse(string $body = "", $code = 200, $headers = [])
-
-    function sendResponse($content = "", $code = 200, $headers = [])
+    function sendResponse(Response $response, bool $clean_buffer = false):bool
     {
-
-
-        http_response_code($code);
-
-        foreach ($headers as $header) {
-            header($header);
-        }
-
-        echo $content;
+        if($clean_buffer && ob_get_level())  ob_end_clean();
+        echo $response;
+        return true;
     }
 
     // отправить клиенту данные как файл на скачивание
-    function sendFile($file_name, $data): Bool
-    {
-
-        if (ob_get_level()) ob_end_clean();
-
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename=' . $file_name);
-        header('Content-Transfer-Encoding: binary');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . strlen($data));
-
-        echo $data;
+    function sendDataAsFile(string $filename, $data): bool
+    {        
+        $response = new Response;
+        $response->headers->setContentDescription('File Transfer');
+        $response->headers->setContentType('application/octet-stream');
+        $response->headers->setContentDisposition('attachment; filename=' . $filename);
+        $response->headers->setContentTransferEncoding('binary');
+        $response->headers->setExpires('0');
+        $response->headers->set('Cache-Control', 'must-revalidate');
+        $response->headers->setPragma('public');
+        $response->headers->setContentLength(strlen($data));
+        $response->body = $data;
+        $this->sendResponse($response, true);
 
         return true;
     }

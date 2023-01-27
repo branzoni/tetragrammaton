@@ -10,20 +10,35 @@ class Path
 
     function __construct($path)
     {
-        $this->path = $path;
+        $this->path = realpath($path);
     }
 
+    function __toString()
+    {
+        return $this->path;
+    }
+
+    /*
+     * путь к родительской папке файла
+    */
     function getDirname(): string
     {
         $tmp = pathinfo($this->path, PATHINFO_DIRNAME);
         return $tmp;
     }
 
+
+    /*
+     * имя файла без расширения
+    */
     function getFilename(): string
     {
         return pathinfo($this->path, PATHINFO_FILENAME);
     }
 
+    /*
+     * имя файла с расширением
+    */
     function getBasename(): string
     {
         return pathinfo($this->path, PATHINFO_BASENAME);
@@ -64,7 +79,7 @@ class Path
         return $tmp;
     }
 
-    function getRealPath():string
+    function getRealPath(): string
     {
         return realpath($this->path);
     }
@@ -130,9 +145,15 @@ class Path
         return true;
     }
 
-    // function __toString()
-    // {
-    //     return $this->path;
-    // }
+    function getSegments(): array
+    {
+        $tmp = $this->path;
+        if ($tmp[0] = "/") $tmp = substr($tmp, 1);
+        return explode("/", $tmp);
+    }
 
+    function getSegmentCount(): int
+    {
+        return count($this->getSegments());
+    }
 }

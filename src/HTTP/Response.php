@@ -10,7 +10,7 @@ class Response
 
     public function __construct()
     {
-        $this->headers = new Headers;
+        $this->headers = new Headers;        
     }
 
     public function __toString()

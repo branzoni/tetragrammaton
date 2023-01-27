@@ -36,9 +36,16 @@ class Row
 		return count($this->fields);
 	}
 
-	function add($value)
+	function add(array $values)
 	{
-		foreach ($value as $key=> $value) {
+		foreach ($values as $key => $value) {
+			$this->fields[$key] = $value;
+		}
+	}
+
+	function add2(...$values)
+	{
+		foreach ($values as $key => $value) {
 			$this->fields[$key] = $value;
 		}
 	}
