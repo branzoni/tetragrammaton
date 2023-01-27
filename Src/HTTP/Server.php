@@ -49,7 +49,7 @@ class Server
         if ($local) return $_SERVER['DOCUMENT_ROOT'];
 
         $host = $this->getHost();
-        if ($host == "localhost") return $this->getProtocol() . "://" . $host . ":" . $this->getPort();        
+        if ($host == "localhost") return $this->getProtocol() . "://" . $host . ":" . $this->getPort();
     }
 
     function getRequestedURI(): string
@@ -57,17 +57,26 @@ class Server
         return $_SERVER['REQUEST_URI'];
     }
 
-    function sendResponse(Response $response, bool $clean_buffer = false):bool
+    function sendResponse(Response $response, bool $clean_buffer = false): bool
     {
-        if($clean_buffer && ob_get_level())  ob_end_clean();
-        echo $response;
+        if ($clean_buffer && ob_get_level())  ob_end_clean();
+
+        http_response_code($response->code);
+
+        foreach ($response->headers->toArray() as $key => $header) {
+            header("$key:$header");
+        }
+        
+        echo $response->body;
+
         return true;
     }
 
     // отправить клиенту данные как файл на скачивание
     function sendDataAsFile(string $filename, $data): bool
-    {        
+    {
         $response = new Response;
+        $response->code = 200;
         $response->headers->setContentDescription('File Transfer');
         $response->headers->setContentType('application/octet-stream');
         $response->headers->setContentDisposition('attachment; filename=' . $filename);

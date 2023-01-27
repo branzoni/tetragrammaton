@@ -15,11 +15,11 @@ class Response
 
     public function __toString()
     {
-        http_response_code($this->code);
+        // http_response_code($this->code);
 
-        foreach ($this->headers->toArray() as $key => $header) {            
-           header("$key:$header");
-        }
-        return $this->body;
+        // foreach ($this->headers->toArray() as $key => $header) {            
+        //    header("$key:$header");
+        // }
+        // return $this->body;
     }
 }

@@ -2,71 +2,71 @@
 
 namespace Tet\HTTP;
 
-use Tet\Params;
+use Tet\Collection;
 
-class Headers extends Params
+class Headers extends Collection
 {
     function setContentDescription($value){
-        $this->data["Content-Description"] = $value;
+        $this->values["Content-Description"] = $value;
     }
 
     function setContentType($value){
-        $this->data["Content-Type"] = $value;
+        $this->values["Content-Type"] = $value;
     }
 
     function setContentLength($value){
-        $this->data["Content-Length"] = $value;
+        $this->values["Content-Length"] = $value;
     }
 
     function setContentDisposition($value){
-        $this->data["Content-Disposition"] = $value;
+        $this->values["Content-Disposition"] = $value;
     }
 
     function setContentTransferEncoding($value){
-        $this->data["Content-Transfer-Encoding"] = $value;
+        $this->values["Content-Transfer-Encoding"] = $value;
     }
 
     function setExpires($value){
-        $this->data["Expires"] = $value;
+        $this->values["Expires"] = $value;
     }
 
     function setCacheControl($value){
-        $this->data["Cache-Control"] = $value;
+        $this->values["Cache-Control"] = $value;
     }
 
     function setPragma($value){
-        $this->data["Pragma"] = $value;
+        $this->values["Pragma"] = $value;
     }    
 
     function getContentDescription(){
-        return $this->data["Content-Description"];
+        return $this->values["Content-Description"];
     }
 
     function getContentType(){
-        return  $this->data["Content-Type"];
+        return  $this->values["Content-Type"];
     }
 
     function getContentLength(){
-        return $this->data["Content-Length"];
+        return $this->values["Content-Length"];
     }
 
     function getContentDisposition(){
-        return $this->data["Content-Disposition"];
+        return $this->values["Content-Disposition"];
     }
 
     function getContentTransferEncoding(){
-        return $this->data["Content-Transfer-Encoding"];
+        return $this->values["Content-Transfer-Encoding"];
     }   
 
     function getCacheControl(){
-        return $this->data["Cache-Control"];
+        return $this->values["Cache-Control"];
     }
 
     function getPragma(){
-        return $this->data["Pragma"];
+        return $this->values["Pragma"];
     }    
 
     function getExpires(){
-        return $this->data["Expires"];
+        return $this->values["Expires"];
     }
 }
