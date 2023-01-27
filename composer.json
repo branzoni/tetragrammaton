@@ -24,7 +24,42 @@
     },
     "autoload": {
         "classmap": [
-            "Src/Tet.php"
+            "Src/Tet.php",
+            "Src/Common/Collection.php",
+            "Src/Common/Params.php",
+            "Src/Common/Result.php",
+            "Src/Common/Utils.php",
+            "Src/Common/ErrorHandler.php",
+            "Src/Common/Fasades.php",
+
+            "Src/HTTP/Header.php",
+            "Src/HTTP/Headers.php",
+
+            "Src/HTTP/Server.php",
+            "Src/HTTP/ServerRequest.php",
+
+            "Src/HTTP/Client.php",
+            "Src/HTTP/ClientRequest.php",
+            "Src/HTTP/Response.php",
+
+            "Src/Filesystem/FileSystem.php",
+            "Src/Filesystem/Path.php",
+            "Src/Filesystem/File.php",
+            "Src/Filesystem/Directory.php",
+
+            "Src/Database/Db.php",
+            "Src/Database/FieldCollection.php",
+            "Src/Database/Table.php",
+            "Src/Database/Row.php",
+            "Src/Database/MySQL.php",
+            "Src/Database/Query.php",
+
+            "Src/Mail/Mail.php",
+            
+            "Src/Routing/Router.php",
+            "Src/Routing/Routes.php",
+            "Src/Routing/Route.php"
+
         ]
     }
 }

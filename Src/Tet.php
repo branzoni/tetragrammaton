@@ -2,43 +2,6 @@
 
 namespace Tet;
 
-include("Common/Collection.php");
-include("Common/Params.php");
-include("Common/Result.php");
-include("Common/Utils.php");
-include("Common/ErrorHandler.php");
-include("Common/Fasades.php");
-
-include("HTTP/Header.php");
-include("HTTP/Headers.php");
-
-include("HTTP/Server.php");
-include("HTTP/ServerRequest.php");
-
-include("HTTP/Client.php");
-include("HTTP/ClientRequest.php");
-include("HTTP/Response.php");
-
-include("Filesystem/Filesystem.php");
-include("Filesystem/Path.php");
-include("Filesystem/File.php");
-include("Filesystem/Directory.php");
-
-include("Database/Db.php");
-include("Database/FieldCollection.php");
-include("Database/Table.php");
-include("Database/Row.php");
-include("Database/Mysql.php");
-include("Database/Query.php");
-
-include("Mail/Mail.php");
-
-
-include("Routing/Router.php");
-include("Routing/Routes.php");
-include("Routing/Route.php");
-
-
 use Tet\HTTP\Response;
 use Tet\Routing\Route;
 /**
