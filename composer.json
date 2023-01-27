@@ -1,6 +1,7 @@
 {
     "name": "branzoni/tet",
     "type": "library",
+    "stability": "stable",
     "minimum-stability": "stable",
     "version": "dev-main",
     "description": "Simple library for PHP apps",
