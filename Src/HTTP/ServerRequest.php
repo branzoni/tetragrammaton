@@ -2,21 +2,21 @@
 
 namespace Tet\HTTP;
 
-use Tet\Params;
+use Tet\Collection;
 
 class ServerRequest
 {
     public function getHeaders():Headers
     {
         $tmp = new Headers;
-        $tmp->load(getallheaders());
+        $tmp->add(getallheaders());
         return $tmp;
     }
 
-    public function getParams():Params
+    public function getParams():Collection
     {
-        $tmp = new Params;
-        $tmp->load($_GET);
+        $tmp = new Collection;
+        $tmp->add($_GET);
         return $tmp;
     }
 

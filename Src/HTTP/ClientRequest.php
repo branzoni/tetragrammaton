@@ -2,14 +2,14 @@
 
 namespace Tet\HTTP;
 
-use Tet\Params;
+use Tet\Collection;
 use Tet\HTTP\Header;
 
 class ClientRequest
 {
     public ?string $method = null;
     public ?string $url = null;    
-    public Params $params;    
+    public Collection $params;    
     public Headers $headers;
     public ?string $body = null;
 
@@ -17,7 +17,7 @@ class ClientRequest
     function __construct(?string $url = null)
     {
         $this->headers = new Headers;
-        $this->params = new Params;
+        $this->params = new Collection;
 
         if ($url) $this->url = $url;
     }
@@ -27,7 +27,7 @@ class ClientRequest
         $response = new Response;
         $response->body = file_get_contents($this->createRequestQuery(), false, $this->createRequestContext());
         $response->code = http_response_code();
-        $response->headers->load($this->getResponseHeaders($http_response_header ?? []));
+        $response->headers->add($this->getResponseHeaders($http_response_header ?? []));        
         return $response;
     }
 

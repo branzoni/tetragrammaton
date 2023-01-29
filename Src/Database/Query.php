@@ -77,7 +77,8 @@ class Query
 		$fields_section = "";
 		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section) {
 			$comma = $counter < $count ? ", " : "";
-			if ($value != "*") $value = "`$value`";
+			//if ($value != "*") $value = "`$value`";
+			if ($value != "*") $value = "$value";
 			$fields_section = "{$fields_section}{$value}{$comma}";
 		});
 

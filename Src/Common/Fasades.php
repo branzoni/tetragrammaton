@@ -2,7 +2,6 @@
 
 namespace Tet;
 
-use Tet\DbInterface;
 use Tet\HTTP\Client;
 use Tet\HTTP\Server;
 use Tet\Mail;
@@ -10,56 +9,43 @@ use Tet\Utils;
 
 class Fasades
 {
-    protected Params $params;
-    protected FileSystem $fiesystem;
-    protected Server $server;
-    protected Client $client;
-    protected DbInterface $db;
-    protected Utils $utils;
-    protected Mail $mail;
+    protected static Collection $params;
+    protected static MySQL $mySQL;    
 
-    function getParams(): Params
+    static function Params(): Collection
     {
-        if (!isset($this->params)) $this->params = new Params;
-        return $this->params;
+        if (!isset(self::$params)) self::$params = new Collection;
+        return self::$params;
     }
 
-    function getFilesystem(): FileSystem
+    static function MySQL(): MySQL
     {
-
-        if (!isset($this->fiesystem)) $this->fiesystem = new FileSystem;
-        return $this->fiesystem;
+        if (!isset(self::$mySQL)) self::$mySQL = new MySQL;
+        return self::$mySQL;
     }
 
-    function getServer(): Server
+    static function Filesystem(): FileSystem
     {
-
-        if (!isset($this->server)) $this->server = new Server;
-        return $this->server;
+        return new FileSystem;        
     }
 
-    function getClient(): Client
+    static function Server(): Server
     {
-
-        if (!isset($this->client)) $this->client = new Client;
-        return $this->client;
+        return new Server;
     }
 
-    function getDb(DbInterface $db): DbInterface
+    static function Client(): Client
     {
-        if (!isset($this->db)) $this->db = $db;
-        return $this->db;
+        return new Client;
     }
 
-    function getUtils(): Utils
+    static function Utils(): Utils
     {
-        if (!isset($this->utils)) $this->utils = new Utils;
-        return $this->utils;
+        return new Utils;
     }
 
-    function getMail(): Mail
+    static function Mail(): Mail
     {
-        if (!isset($this->mail)) $this->mail = new Mail;
-        return $this->mail;
+        return new Mail;        
     }
 }

@@ -19,7 +19,7 @@ class Collection
     function add(...$values)
     {
         if (count($values) == 1) $values = $values[0];
-        
+
         foreach ($values as $name => $value) {
             $this->set($name, $value);
         }
@@ -73,9 +73,8 @@ class Collection
     {
         $count = $this->getCount();
         $index = 0;
-        foreach($this->values as $key => $value)
-        {
-            $index += 1;            
+        foreach ($this->values as $key => $value) {
+            $index += 1;
             $callback($key, $value, $count, $index);
         }
     }

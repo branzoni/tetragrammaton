@@ -3,10 +3,10 @@
 namespace Tet;
 
 use stdClass;
-use Tet\HTTP\Response;
 use Throwable;
 use Tet\Result;
 use Tet\HTTP\Server;
+use Tet\HTTP\Response;
 
 class ErrorHandler
 {

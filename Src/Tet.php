@@ -1,23 +1,16 @@
 <?php
 
-namespace Tet;
-
 use Tet\HTTP\Response;
 use Tet\Routing\Route;
-/**
- * Обеспечивает необходимый функционал для разработки несложных API:
- * - получение параметров запроса
- * - работа с базой MySQL
- * - работа с файлами
- * - формирование ответа в пользовательской функции
- * @author Sergey V. Afanasyev <sergey.v.afanasyev@gmail.com>
- */
+use Tet\Router;
+use Tet\ErrorHandler;
+use Tet\Fasades;
+use Tet\HTTP\Server;
 
 class Tet
 {
-
-    protected Router $router;
-    protected Fasades $fasades;
+    protected static Router $router;
+    protected static Fasades $fasades;
 
     function __construct()
     {
@@ -25,38 +18,28 @@ class Tet
         (new ErrorHandler)->setExeptionHandler();
     }
 
-
-    // function autoload(string $path)
-    // {
-    //     $files = (new FileSystem)->getDirectory($path)->getFileList(["*.php"]);
-    //     foreach ($files as $key => $file) {
-    //         //include($file);
-    //     }
-    // }
-
-
-    function getRouter(): Router
+    static function Router(): Router
     {
-        if (!isset($this->router)) $this->router = new Router;
-        return $this->router;
+        if (!isset(self::$router)) self::$router = new Router;
+        return self::$router;
     }
 
-    function getFasades(): Fasades
+    static function Fasades(): Fasades
     {
-        if (!isset($this->fasades)) $this->fasades = new Fasades;
-        return $this->fasades;
+        if (!isset(self::$fasades)) self::$fasades = new Fasades;
+        return self::$fasades;
     }
 
-    function run(): bool
+    static function run(): bool
     {
-        $route = $this->router->getMatchedRoute();
-        if (!$route) return false; 
-        $response = $this->executeRouteCallback($route);       
-        $this->fasades->getServer()->sendResponse($response);
+        $route = self::$router->getMatchedRoute();
+        if (!$route) return false;
+        $response =self::executeRouteCallback($route);
+        (new Server)->sendResponse($response);
         return true;
     }
 
-    private function executeRouteCallback(Route $route):Response
+    private function executeRouteCallback(Route $route): Response
     {
         switch (gettype($route->callback)) {
             case 'object':
@@ -67,5 +50,4 @@ class Tet
                 return $route->callback;
         };
     }
-
 }
