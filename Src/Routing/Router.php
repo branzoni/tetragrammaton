@@ -11,10 +11,11 @@ class Router
 {
     public ArrayObject $routes;
     public int $count = 0;
-
-    function __construct()
-    {
+    public string $root;
+    function __construct($root)
+    {        
         $this->routes = new Routes;
+        $this->root = $root;
     }
 
     private function addRoute(Route $route):Route
@@ -43,10 +44,10 @@ class Router
     {        
         if (!$this->routes) (new ErrorHandler)->throwException("no router init");
         if ($this->count == 0) (new ErrorHandler)->throwException("no router setted");
-
+        
         foreach ($this->routes as $route) {
             // простое совпадение            
-            if ($route->isRequested()) return $route;
+            if ($route->isRequested($this->root)) return $route;
             // получение аргументов включает проверку сложного совпадения роутов
             $args = $route->getArguments();            
             if ($args) return $route;

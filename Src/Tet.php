@@ -18,9 +18,10 @@ class Tet
         (new ErrorHandler)->setExeptionHandler();
     }
 
-    static function Router(): Router
+    static function Router($root): Router
     {
-        if (!isset(self::$router)) self::$router = new Router;
+
+        if (!isset(self::$router)) self::$router = new Router($root);
         return self::$router;
     }
 
@@ -31,20 +32,34 @@ class Tet
     }
 
     static function run(): bool
-    {
-        $route = self::$router->getMatchedRoute();
+    {        
+        $route = self::$router->getMatchedRoute();        
         if (!$route) return false;
         $response =self::executeRouteCallback($route);
+        if(!$response) return true;
         (new Server)->sendResponse($response);
         return true;
     }
 
-    private function executeRouteCallback(Route $route): Response
+    static private function executeRouteCallback(Route $route): ?Response
     {
         switch (gettype($route->callback)) {
             case 'object':
             case 'array':
-                return call_user_func_array($route->callback, array($this->fasades, $route->getArguments()));
+                $result = call_user_func_array($route->callback, array(self::Fasades(), $route->getArguments()));
+                if(!$result) return null;
+                switch(gettype($result))
+                {                    
+                    case 'string':
+                        $response = new Response;
+                        $response->body = $result;
+                        $response->code = 200;
+                        return $response;
+                        break;
+                    default:
+                        return $result;
+                }
+
                 break;
             default:
                 return $route->callback;

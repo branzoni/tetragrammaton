@@ -46,10 +46,9 @@ class Server
 
     public function getRoot($local = true): string
     {
-        if ($local) return $_SERVER['DOCUMENT_ROOT'];
-
-        $host = $this->getHost();
-        if ($host == "localhost") return $this->getProtocol() . "://" . $host . ":" . $this->getPort();
+        $root = $_SERVER['DOCUMENT_ROOT'];
+        if ($local) return $root;
+        return basename($root);
     }
 
     function getRequestedURI(): string
@@ -73,7 +72,7 @@ class Server
     }
 
     // отправить клиенту данные как файл на скачивание
-    function sendDataAsFile(string $filename, $data): bool
+    function sendDataAsFile(string $filename, string $data): bool
     {
         $response = new Response;
         $response->code = 200;

@@ -2,7 +2,6 @@
 
 namespace Tet\Routing;
 
-use Tet\HTTP\Response;
 use Tet\Path;
 use Tet\HTTP\Server;
 
@@ -19,20 +18,21 @@ class Route
         $this->callback = $calback;
     }
 
-    function isEqual(string $uri): bool
+    function isEqual(string $root, string $requesteddURI): bool
     {
-        return $this->uri == $uri;
+        return $root . $this->uri == $requesteddURI;
     }
 
-    function isRequested(): bool
+    function isRequested($root): bool
     {
-        return $this->isEqual((new Server)->getRequestedURI());        
+        $root = (new Path($root))->getRelativePath();
+        return $root . $this->uri == (new Server)->getRequestedURI();
     }
 
     function getArguments(): ?array
     {
-        if(!$this->hasVariables()) return null;
-        
+        if (!$this->hasVariables()) return null;
+
         // сравнение структуры запросов
         $path1 = new Path(($this->uri));
         $path2 = new Path((new Server)->getRequestedURI());
@@ -64,12 +64,13 @@ class Route
     }
 
 
-    private function isVariable(string $segment):bool
+    private function isVariable(string $segment): bool
     {
         return preg_match('/{*}/', $segment);
     }
 
-    private function getVarialbeName(string $segment){
+    private function getVarialbeName(string $segment)
+    {
         return str_replace(['{', '}'], '', $segment);
     }
 }
