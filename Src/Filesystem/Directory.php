@@ -34,8 +34,18 @@ class Directory extends Path
         return $files;
     }
 
-    function getDirectoryList(): array
+    function getDirectoryList(bool $recursive = true): array
     {
-        return glob($this->path . '/*', GLOB_ONLYDIR | GLOB_NOSORT);
+        // получаем подпапки в выбранном каталоге                
+        $folders = glob($this->path . '/*', GLOB_ONLYDIR | GLOB_NOSORT);
+   
+        // получаем подпапки
+        foreach ($folders as $folder) {            
+            if (!$recursive) return $folders;
+            $sub_folders = (new Directory($folder))->getDirectoryList($recursive);
+            $folders = array_merge($folders, $sub_folders);
+        }
+
+        return $folders;
     }
 }
