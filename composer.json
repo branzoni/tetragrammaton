@@ -26,7 +26,7 @@
         "classmap": [
             "Src/Tet.php",
 
-            "Src/Common/CodeGeenerator.php",
+            "Src/Common/CodeGenerator.php",
             "Src/Common/Collection.php",
             "Src/Common/ErrorHandler.php",
             "Src/Common/Fasades.php",
