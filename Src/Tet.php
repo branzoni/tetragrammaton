@@ -3,66 +3,95 @@
 use Tet\HTTP\Response;
 use Tet\Routing\Route;
 use Tet\Router;
-use Tet\ErrorHandler;
-use Tet\Fasades;
+use Tet\Fasade;
 use Tet\HTTP\Server;
 
 class Tet
 {
-    protected static Router $router;
-    protected static Fasades $fasades;
+    protected Router $router;
+    protected Fasade $fasade;
 
-    function __construct()
+    function router($root): Router
     {
-        (new ErrorHandler)->setErrorHandler();
-        (new ErrorHandler)->setExeptionHandler();
+        if (!isset($this->router)) $this->router = new Router($root);
+        return $this->router;
     }
 
-    static function Router($root): Router
+    function fasade(): Fasade
     {
-
-        if (!isset(self::$router)) self::$router = new Router($root);
-        return self::$router;
+        if (!isset($this->fasade)) $this->fasade = new Fasade;
+        return $this->fasade;
     }
 
-    static function Fasades(): Fasades
+    function run(): bool
     {
-        if (!isset(self::$fasades)) self::$fasades = new Fasades;
-        return self::$fasades;
-    }
-
-    static function run(): bool
-    {        
-        $route = self::$router->getMatchedRoute();        
+        $route = $this->router->getMatchedRoute();
         if (!$route) return false;
-        $response =self::executeRouteCallback($route);
-        if(!$response) return true;
+
+        $response = $this->executeRouteCallback($route);
+        if (!$response) return true;
+
         (new Server)->sendResponse($response);
         return true;
     }
 
-    static private function executeRouteCallback(Route $route): ?Response
+    private function executeRouteCallback(Route $route): ?Response
     {
+        // вызываем колбек
         switch (gettype($route->callback)) {
             case 'object':
             case 'array':
-                $result = call_user_func_array($route->callback, array(self::Fasades(), $route->getArguments()));
-                if(!$result) return null;
-                switch(gettype($result))
-                {                    
-                    case 'string':
-                        $response = new Response;
-                        $response->body = $result;
-                        $response->code = 200;
-                        return $response;
-                        break;
-                    default:
-                        return $result;
-                }
-
+                $result = call_user_func_array($route->callback, array($this->Fasade(), $route->getArguments()));
                 break;
             default:
-                return $route->callback;
+                $result = $route->callback;
         };
+
+        if (!$result) return null;
+
+        // отдаем респонс
+        switch (gettype($result)) {
+            case 'string':
+                $response = new Response;
+                $response->body = $result;
+                $response->code = 200;
+                return $response;
+                break;
+            default:
+                return $result;
+        }
+    }
+
+    function setErrorHandler()
+    {
+        set_error_handler(function ($code, $message, $file, $line) {
+            $this->error_callback($code, $message, $file, $line);
+            exit;
+        });
+    }
+
+    function setExeptionHandler()
+    {
+        set_exception_handler(function (Throwable $e) {
+            $this->error_callback($e->getCode(),  $e->getMessage(), $e->getFile(), $e->getLine());
+        });
+    }
+
+    private function error_callback($code, $message, $file, $line)
+    {
+        $tmp = new stdClass;
+        $tmp->message = $message;
+        $tmp->code = $code;
+        $tmp->file = $file;
+        $tmp->line = $line;
+
+        $srv = new Server;
+        $tmp->request = $srv->getRequest();
+        $tmp->url = $srv->getRequest()->getURI();
+        $tmp->method = $srv->getRequest()->getMethod();
+
+        $response = new Response();
+        $response->body = json_encode($tmp);
+        $srv->sendResponse($response);
     }
 }

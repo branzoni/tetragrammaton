@@ -122,7 +122,7 @@ class Path
     function copy(string $destination): bool
     {
         $file = new File($this->path);
-        if (!(new FileSystem)->createDirectory($file->getDirname())) return false;
+        if (!(new Filesystem)->createDirectory($file->getDirname())) return false;
 
         // скачиваем файл по ссылке и сохраняем по указанному пути
 

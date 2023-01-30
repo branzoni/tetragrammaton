@@ -7,7 +7,7 @@ class MySQL
     private $connection;
     private $name;
 
-    function open($hostname, $name, $user, $password, $charset = "utf8"):bool
+    function open(string $hostname, string $name, string $user, string $password, string $charset = "utf8"): bool
     {
         $this->name = $name;
         $this->connection = mysqli_connect($hostname, $user, $password, $name);
@@ -21,19 +21,9 @@ class MySQL
         return mysqli_close($this->connection);
     }
 
-    function error(): string
-    {
-        return mysqli_error($this->connection);
-    }
-
-    private function escapeString($string): string
+    private function escapeString(string $string): string
     {
         return mysqli_real_escape_string($this->connection, $string);
-    }
-
-    function connected():bool
-    {
-        return boolval($this->connection);
     }
 
     function execute(string $query): Result
@@ -46,7 +36,17 @@ class MySQL
         $result->data = mysqli_fetch_all($data,  MYSQLI_ASSOC);;
         return $result;
     }
-    
+
+    function isConnected(): bool
+    {
+        return boolval($this->connection);
+    }
+
+    function getError(): string
+    {
+        return mysqli_error($this->connection);
+    }
+
     function getTableList(): array
     {
         //select * from information_schema.TABLES WHERE TABLE_NAME='oc_order
@@ -71,7 +71,7 @@ class MySQL
         if (!$data) return null;
 
         foreach ($data as $key => $value) {
-            $tb = new TableField();
+            $tb = new Field();
             $tb->name = $value["Field"];
             $tb->type = $value["Type"];
             $tb->null = $value["Null"];
@@ -89,7 +89,7 @@ class MySQL
         $ts = $this->getTableFieldList($tablename);
 
         $destination = "$destination/{$this->name}/Tables";
-        (new FileSystem)->createDirectory($destination);
+        (new Filesystem)->createDirectory($destination);
 
         $cg = new CodeGenerator();
         $cg->open("$destination/$tablename.php");
@@ -122,7 +122,7 @@ class MySQL
     {
 
         $destination = "$destination/{$this->name}";
-        (new FileSystem)->createDirectory($destination);
+        (new Filesystem)->createDirectory($destination);
 
         $cg = new CodeGenerator();
         $cg->open("$destination/{$this->name}.php");

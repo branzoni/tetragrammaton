@@ -2,7 +2,7 @@
 
 namespace Tet;
 
-class FieldCollection extends Collection
+class Fields extends Collection
 {
 	function __set(string $name, $value)
 	{

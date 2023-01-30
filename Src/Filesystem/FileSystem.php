@@ -4,7 +4,7 @@ namespace Tet;
 
 use Tet\Path;
 
-class FileSystem
+class Filesystem
 {
     function createDirectory(string $path): bool
     {
@@ -12,12 +12,20 @@ class FileSystem
         return @mkdir($path, 0777, true);
     }
 
-    function createFile(string $path): bool
+    function createFile(string $path, $data = null): bool
     {
         $file = new File($path);
         if (!$this->createDirectory($file->getDirname())) return false;
 
-        @fopen($path, "w");
+        $stream = @fopen($path, "w");
+
+        if($data)
+        {
+            @fwrite($stream, $data);
+        }
+
+        @fclose($stream);
+   
         return true;
     }
 

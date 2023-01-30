@@ -2,9 +2,6 @@
 
 namespace Tet;
 
-use Tet\Query;
-
-
 class Table extends TableEntity
 {
     public static MySQL $mySQL;

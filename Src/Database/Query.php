@@ -21,7 +21,7 @@ class Query
 {
 	public string $tablename;
 	public string $command;
-	public FieldCollection $fields;
+	public Fields $fields;
 	public $where;
 	public $orderBy;
 
@@ -38,7 +38,7 @@ class Query
 
 	function __construct()
 	{
-		$this->fields = new FieldCollection;
+		$this->fields = new Fields;
 	}
 
 	function __toString(): string
@@ -140,10 +140,9 @@ class Query
 
 	private function getOrderSection(): string
 	{
-		switch(gettype($this->orderBy))
-		{
+		switch (gettype($this->orderBy)) {
 			case "string":
-				$arr = explode(",", $this->orderBy);			
+				$arr = explode(",", $this->orderBy);
 				$this->orderBy = (new Collection);
 				$this->orderBy->add($arr);
 				break;
@@ -153,7 +152,7 @@ class Query
 				$this->orderBy->add($tmp);
 				break;
 		}
-		
+
 		if (!$this->orderBy) return "";
 		if (!$this->orderBy->getCount()) return "";
 
@@ -184,15 +183,8 @@ class Query
 
 	private function getQuote($value)
 	{
-
-		switch (gettype($value)) {
-			case 'string':
-				$quote = "'";
-				break;
-			default:
-				$quote = "";
-		}
-
-		return $quote;
+		$type = gettype($value);
+		if ($type == 'string') return "'";
+		else return "";
 	}
 }

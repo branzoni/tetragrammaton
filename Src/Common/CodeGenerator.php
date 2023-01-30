@@ -40,7 +40,6 @@ class CodeGenerator
 
     function class($name, $body)
     {
-
         $this->line("class $name()", 1);
         $this->line("{", 1);
         $this->line($body, 2);

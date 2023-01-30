@@ -43,7 +43,7 @@ abstract class TableEntity
 		return $query;
 	}
 	
-	// function duplicate($idFieldName, $idFieldValue): Result
+	// function duplicate($idFieldName, $idFieldValue)
 	// {
 
 	// 	$fieldsString = implode(", ", $this->getFieldNames());

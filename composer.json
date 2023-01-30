@@ -27,31 +27,30 @@
             "Src/Tet.php",
 
             "Src/Common/CodeGenerator.php",
-            "Src/Common/Collection.php",
-            "Src/Common/ErrorHandler.php",
-            "Src/Common/Fasades.php",
+            "Src/Common/Collection.php",            
+            "Src/Common/Fasade.php",
             "Src/Common/Result.php",
             "Src/Common/Utils.php",
-            
-            "Src/Database/FieldCollection.php",
-            "Src/Database/MySQL.php",
-            "Src/Database/Query.php",
-            "Src/Database/Table.php",
+                        
+            "Src/Database/MySQL.php",            
             "Src/Database/TableEntity.php",
-            "Src/Database/TableField.php",            
+            "Src/Database/Table.php",
+            "Src/Database/Query.php",
+            "Src/Database/Fields.php",
+            "Src/Database/Field.php",            
 
-            "Src/Filesystem/Directory.php",
-            "Src/Filesystem/File.php",
             "Src/Filesystem/FileSystem.php",
             "Src/Filesystem/Path.php",
-
-            "Src/HTTP/Client.php",
-            "Src/HTTP/ClientRequest.php",
-            "Src/HTTP/Header.php",
-            "Src/HTTP/Headers.php",
-            "Src/HTTP/Response.php",
+            "Src/Filesystem/Directory.php",
+            "Src/Filesystem/File.php",
+            
             "Src/HTTP/Server.php",
             "Src/HTTP/ServerRequest.php",
+            "Src/HTTP/Client.php",
+            "Src/HTTP/ClientRequest.php",
+            "Src/HTTP/Headers.php",
+            "Src/HTTP/Header.php",            
+            "Src/HTTP/Response.php",            
 
             "Src/Mail/Mail.php",
             

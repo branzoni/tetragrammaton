@@ -2,7 +2,7 @@
 
 namespace Tet;
 
-class TableField
+class Field
 {
     public string $name;
     public string $type;
