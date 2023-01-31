@@ -7,6 +7,11 @@ abstract class TableEntity
 	public static string $tablename;
 	public static MySQL $mySQL;
 
+	public function getRows(): array
+	{
+		return static::$mySQL->execute("SELECT * FROM " . static::$tablename)->data;
+	}
+
 	public function createSelectQuery(array $fields, $where = null, array $orderBy = null)
 	{
 		$query = new Query;

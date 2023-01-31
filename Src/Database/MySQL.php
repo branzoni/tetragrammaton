@@ -6,7 +6,7 @@ class MySQL
 {
     private $connection;
     private $name;
-
+    
     function open(string $hostname, string $name, string $user, string $password, string $charset = "utf8"): bool
     {
         $this->name = $name;
