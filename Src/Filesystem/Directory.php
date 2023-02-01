@@ -74,20 +74,10 @@ class Directory extends Path
 
         return [
             "path" => $this->path,
-            "total" => $this->getFormatedSize($totalspace, $format),
-            "use" => $this->getFormatedSize($usedspace, $format),
-            "free" => $this->getFormatedSize($freespace, $format),
+            "total" => Utils::getFormatedBytes($totalspace, $format),
+            "use" => Utils::getFormatedBytes($usedspace, $format),
+            "free" => Utils::getFormatedBytes($freespace, $format),
             "format" => $format
         ];
-    }
-
-    function getFormatedSize($value, $format = "gb")
-    {
-        $tmp = $value;
-        if ($format == "kb")  $tmp = $tmp / 1024;
-        if ($format == "mb") $tmp = $tmp / 1024 / 1024;
-        if ($format == "gb") $tmp = $tmp / 1024 / 1024 / 1024;
-        $tmp = round($tmp, 2);
-        return $tmp;
     }
 }

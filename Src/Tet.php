@@ -37,7 +37,7 @@ class Tet
 
     private function executeRouteCallback(Route $route): ?Response
     {
-        // вызываем колбек
+        // вызываем колбек        
         switch (gettype($route->callback)) {
             case 'object':
             case 'array':

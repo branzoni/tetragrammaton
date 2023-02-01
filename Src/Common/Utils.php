@@ -15,5 +15,15 @@ class Utils
 
         return $tmp;
     }
+
+    static function getFormatedBytes($value, $format = "gb")
+    {
+        $tmp = $value;
+        if ($format == "kb")  $tmp = $tmp / 1024;
+        if ($format == "mb") $tmp = $tmp / 1024 / 1024;
+        if ($format == "gb") $tmp = $tmp / 1024 / 1024 / 1024;
+        $tmp = round($tmp, 2);
+        return $tmp;
+    }
 }
 

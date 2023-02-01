@@ -11,6 +11,7 @@ class Path
     function __construct($path)
     {
         $this->path = realpath($path);
+        if(!$this->path) $this->path = $path;
     }
 
     function __toString()
@@ -27,7 +28,6 @@ class Path
         return $tmp;
     }
 
-
     /*
      * имя файла без расширения
     */
@@ -41,6 +41,7 @@ class Path
     */
     function getBasename(): string
     {
+        return basename($this->path);
         return pathinfo($this->path, PATHINFO_BASENAME);
     }
 

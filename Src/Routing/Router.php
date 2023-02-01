@@ -18,6 +18,16 @@ class Router
         $this->root = $root;
     }
 
+    function createHTML($destination="router.html")
+    {    
+        $html = "<title>Router</title>";
+        foreach ($this->routes as $key=>$route) {
+            $html .= "<a href=\".$route->uri\">$key. $route->uri</a><br>\r\n";
+        }        
+        (new Filesystem)->createFile($destination, $html);
+        return "ok";
+    }
+
     private function addRoute(Route $route):Router
     {
         $this->routes[] = $route;

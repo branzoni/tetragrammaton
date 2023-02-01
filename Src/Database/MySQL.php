@@ -169,4 +169,21 @@ class MySQL
     {
         return true;
     }
+
+    function getDatabaseStructure(Fasade $fasade)
+    {        
+        $tables = $this->getTableList();
+
+        $result = [];
+        foreach ($tables as $table) {
+            $fields = $this->getTableFieldList($table)->toArray();
+            foreach ($fields as $field) {
+                $result[$table][] = $field->name;
+            }
+        }
+
+        $fasade->filesystem()->createFile("db_structure.json", json_encode($result));
+
+        return "ok";
+    }
 }
