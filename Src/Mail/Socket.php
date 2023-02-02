@@ -1,11 +1,10 @@
 <?php
 
-namespace Tet;
+namespace Tet\Mail;
+
 
 class Socket
 {
-	
-	use Exceptionable;
 
 	public string $hostname;
 	public int $port;
@@ -25,6 +24,11 @@ class Socket
 		return boolval($this->handle);
 	}
 
+	private function exception($err)
+	{
+		throw new \Exception("Socket Object: $err");
+	}
+
 	private function echo(string $message)
 	{
 		echo Date('d-m-Y h:i:s') . "$message<br>";
@@ -32,7 +36,7 @@ class Socket
 
 	function isOpened():bool
 	{
-		return $this->handle;
+		return boolval($this->handle);
 	}
 
 	function write(string $data): bool

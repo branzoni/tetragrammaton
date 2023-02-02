@@ -4,8 +4,7 @@ namespace Tet;
 
 use Tet\HTTP\Client;
 use Tet\HTTP\Server;
-use Tet\Mail;
-use Tet\Utils;
+use Tet\Mail\Mailer;
 
 class Fasade
 {
@@ -44,8 +43,8 @@ class Fasade
         return new Utils;
     }
 
-    function mail(): Mail
+    function mailer(): Mailer
     {
-        return new Mail;
+        return new Mailer;
     }
 }

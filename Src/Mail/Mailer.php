@@ -1,9 +1,6 @@
 <?php
 
-namespace Tet;
-
-use Tet\Message;
-use Tet\SMTP;
+namespace Tet\Mail;
 
 class Mailer
 {
@@ -17,10 +14,10 @@ class Mailer
 	public string $messageTo;
 	public string $messageFrom;
 	public string $messageSender;
-	public string $messageReplyTo;
+	public string $messageReplyTo = '';
 	public string $messageText;
 	public string $messageSubject;
-	public string $messageAttachments;
+	public array $messageAttachments;
 	public string $messageAsHTML;
 
 	function send(): bool
@@ -44,7 +41,7 @@ class Mailer
 	}
 
 	private function createMessage(): Message
-	{
+	{		
 		$message = new Message;
 		$message->to = $this->messageTo;
 		$message->subject = $this->messageSubject;

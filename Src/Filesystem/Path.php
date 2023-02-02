@@ -105,6 +105,7 @@ class Path
 
     function rename(string $destination): bool
     {
+        if(!(new Filesystem)->createDirectory((new Path($destination))->getDirname())) return false;
         return @rename($this->path, $destination);
     }
 

@@ -47,37 +47,16 @@ class Directory extends Path
         }
 
         return $folders;
-    }
+    }  
 
-    function getFreeSpace(): float
+    function getSize()
     {
-        return disk_free_space($this->path);
-    }
-
-    function getTotalSpace(): float
-    {
-        return disk_total_space($this->path);
-    }
-
-    function getUsedSpace(): float
-    {
-        $freespace = $this->getFreeSpace();
-        $totalspace = $this->getTotalSpace();
-        return $totalspace - $freespace;
-    }
-
-    function getSpaceInfo($format = "gb")
-    {
-        $freespace = $this->getFreeSpace($this->path);
-        $totalspace = $this->getTotalSpace($this->path);
-        $usedspace = $this->getUsedSpace($this->path);
-
-        return [
-            "path" => $this->path,
-            "total" => Utils::getFormatedBytes($totalspace, $format),
-            "use" => Utils::getFormatedBytes($usedspace, $format),
-            "free" => Utils::getFormatedBytes($freespace, $format),
-            "format" => $format
-        ];
+        if (PHP_OS_FAMILY != "Linux") return null;
+        
+        exec("du -sh $this->path", $data, $code);
+        if (!$data) return null;
+        $data = $data[0];
+        $data = explode("\t", $data);
+        return $data[0];
     }
 }

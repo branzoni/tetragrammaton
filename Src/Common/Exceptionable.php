@@ -4,8 +4,10 @@ namespace Tet;
 
 trait Exceptionable
 {
-	public static function exception($message)
+	protected string $err;
+	
+	public static function exception($err)
 	{
-		throw new \Exception(static::class . " Object: $message");
+		throw new \Exception(static::class . " Object: $err");
 	}
 }

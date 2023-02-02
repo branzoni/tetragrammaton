@@ -1,8 +1,6 @@
 <?php
 
-namespace Tet;
-
-use Tet\Socket;
+namespace Tet\Mail;
 
 class SMTP
 {
