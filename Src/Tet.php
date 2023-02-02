@@ -1,4 +1,5 @@
 <?php
+namespace Tet;
 
 use Tet\HTTP\Response;
 use Tet\Routing\Route;
