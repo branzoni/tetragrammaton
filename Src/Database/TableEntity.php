@@ -1,13 +1,13 @@
 <?php
 
-namespace Tet;
+namespace Tet\Database;
 
 abstract class TableEntity
 {
 	public static string $tablename;
 	public static MySQL $mySQL;
 
-	public function getRows(): array
+	public function getRows(): ?array
 	{
 		return static::$mySQL->execute("SELECT * FROM " . static::$tablename)->data;
 	}

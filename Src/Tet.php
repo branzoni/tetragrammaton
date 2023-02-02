@@ -1,11 +1,15 @@
 <?php
 namespace Tet;
 
+use Tet\Common\Fasade;
 use Tet\HTTP\Response;
-use Tet\Routing\Route;
-use Tet\Router;
-use Tet\Fasade;
 use Tet\HTTP\Server;
+use Tet\Routing\Router;
+use Tet\Routing\Route;
+
+
+use \Throwable;
+use \stdClass;
 
 class Tet
 {

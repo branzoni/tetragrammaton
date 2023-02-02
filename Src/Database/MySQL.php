@@ -1,6 +1,11 @@
 <?php
 
-namespace Tet;
+namespace Tet\Database;
+use Tet\Common\Result;
+use Tet\Common\Collection;
+use Tet\Common\CodeGenerator;
+use Tet\Common\Fasade;
+use Tet\Filesystem\Filesystem;
 
 class MySQL
 {

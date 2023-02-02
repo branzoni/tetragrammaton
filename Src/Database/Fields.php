@@ -1,6 +1,7 @@
 <?php
 
-namespace Tet;
+namespace Tet\Database;
+use Tet\Common\Collection;
 
 class Fields extends Collection
 {

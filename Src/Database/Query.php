@@ -1,6 +1,8 @@
 <?php
 
-namespace Tet;
+namespace Tet\Database;
+
+use Tet\Common\Collection;
 
 class WhereCondition
 {

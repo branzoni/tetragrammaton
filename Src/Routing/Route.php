@@ -2,7 +2,7 @@
 
 namespace Tet\Routing;
 
-use Tet\Path;
+use Tet\Filesystem\Path;
 use Tet\HTTP\Server;
 
 class Route
@@ -20,10 +20,6 @@ class Route
 
     function isEqual(string $root, string $requesteddURI): bool
     {
-        // echo "$root<br>";
-        // echo "{$this->uri}<br>";
-        // echo "{$requesteddURI}<br>";
-
         return $root . $this->uri == $requesteddURI;
     }
 

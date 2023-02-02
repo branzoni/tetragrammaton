@@ -1,8 +1,9 @@
 <?php
 
-namespace Tet;
+namespace Tet\Filesystem;
 
-use Tet\Path;
+use Tet\Common\Utils;
+use Tet\Filesystem\Path;
 
 class Filesystem
 {

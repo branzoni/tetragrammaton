@@ -1,6 +1,7 @@
 <?php
 
 namespace Tet\Mail;
+use Tet\Mail\Message;
 
 class Mailer
 {

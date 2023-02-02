@@ -1,10 +1,12 @@
 <?php
 
-namespace Tet;
+namespace Tet\Common;
 
 use Tet\HTTP\Client;
 use Tet\HTTP\Server;
 use Tet\Mail\Mailer;
+use Tet\Database\MySQL;
+use Tet\Filesystem\Filesystem;
 
 class Fasade
 {

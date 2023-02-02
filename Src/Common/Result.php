@@ -1,6 +1,6 @@
 <?php
 
-namespace Tet;
+namespace Tet\Common;
 
 use stdClass;
 
