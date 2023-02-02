@@ -25,7 +25,8 @@
     "autoload": {
         "classmap": [
             "Src/Tet.php",
-
+            
+            "Src/Common/Exceptionable.php",
             "Src/Common/CodeGenerator.php",
             "Src/Common/Collection.php",            
             "Src/Common/Fasade.php",
@@ -52,7 +53,10 @@
             "Src/HTTP/Header.php",            
             "Src/HTTP/Response.php",            
 
-            "Src/Mail/Mail.php",
+            "Src/Mail/Mailer.php",
+            "Src/Mail/Message.php",
+            "Src/Mail/SMTP.php",
+            "Src/Mail/Socket.php",
             
             "Src/Routing/Route.php",
             "Src/Routing/Router.php",
