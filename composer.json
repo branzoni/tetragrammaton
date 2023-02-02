@@ -23,44 +23,8 @@
         "php": ">=7.4"
     },
     "autoload": {
-        "classmap": [
-            "Src/Tet.php",
-            
-            "Src/Common/Exceptionable.php",
-            "Src/Common/CodeGenerator.php",
-            "Src/Common/Collection.php",            
-            "Src/Common/Fasade.php",
-            "Src/Common/Result.php",
-            "Src/Common/Utils.php",
-                        
-            "Src/Database/MySQL.php",            
-            "Src/Database/TableEntity.php",
-            "Src/Database/Table.php",
-            "Src/Database/Query.php",
-            "Src/Database/Fields.php",
-            "Src/Database/Field.php",            
-
-            "Src/Filesystem/FileSystem.php",
-            "Src/Filesystem/Path.php",
-            "Src/Filesystem/Directory.php",
-            "Src/Filesystem/File.php",
-            
-            "Src/HTTP/Server.php",
-            "Src/HTTP/ServerRequest.php",
-            "Src/HTTP/Client.php",
-            "Src/HTTP/ClientRequest.php",
-            "Src/HTTP/Headers.php",
-            "Src/HTTP/Header.php",            
-            "Src/HTTP/Response.php",            
-
-            "Src/Mail/Mailer.php",
-            "Src/Mail/Message.php",
-            "Src/Mail/SMTP.php",
-            "Src/Mail/Socket.php",
-            
-            "Src/Routing/Route.php",
-            "Src/Routing/Router.php",
-            "Src/Routing/Routes.php"
-        ]
+        "psr-4":{
+            "Tet\\" : "Src/Tet"
+        }
     }
 }
