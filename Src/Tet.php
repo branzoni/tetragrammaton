@@ -6,8 +6,6 @@ use Tet\HTTP\Response;
 use Tet\HTTP\Server;
 use Tet\Routing\Router;
 use Tet\Routing\Route;
-
-
 use \Throwable;
 use \stdClass;
 
@@ -46,7 +44,7 @@ class Tet
         switch (gettype($route->callback)) {
             case 'object':
             case 'array':
-                $result = call_user_func_array($route->callback, array($this->Fasade(), $route->getArguments()));
+                $result = call_user_func_array($route->callback, array($this->fasade(), $route));
                 break;
             default:
                 $result = $route->callback;

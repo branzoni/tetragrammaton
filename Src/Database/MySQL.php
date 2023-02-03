@@ -134,7 +134,7 @@ class MySQL
         $cg->startTag();
         $cg->line("");
         foreach ($enums as $value) {
-            $cg->line("include(\"Tables/$value.php\");", 0);
+            $cg->line("require(\"Tables/$value.php\");", 0);
         }
 
         $cg->line("");
