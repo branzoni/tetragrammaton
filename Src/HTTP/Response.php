@@ -8,8 +8,10 @@ class Response
     public ?int $code = null;
     public ?string $body = null;
 
-    public function __construct()
+    public function __construct(string $body = null, int $code = 200)
     {
+        $this->code = $code;
+        $this->body = $body;
         $this->headers = new Headers;        
     }
 

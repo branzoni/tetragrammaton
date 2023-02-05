@@ -1,23 +1,21 @@
 <?php
 
 namespace Tet\Database;
-use Tet\Common\Result;
-use Tet\Common\Collection;
-use Tet\Common\CodeGenerator;
-use Tet\Common\Fasade;
-use Tet\Filesystem\Filesystem;
+
+use Exception;
 
 class MySQL
 {
     private $connection;
-    private $name;
-    
+    public $name;
+
     function open(string $hostname, string $name, string $user, string $password, string $charset = "utf8"): bool
     {
         $this->name = $name;
         $this->connection = mysqli_connect($hostname, $user, $password, $name);
         if (!$this->connection) return null;
         mysqli_set_charset($this->connection, $charset);
+
         return boolval($this->connection);
     }
 
@@ -26,20 +24,22 @@ class MySQL
         return mysqli_close($this->connection);
     }
 
+    function selectDatabase(string $database): bool
+    {
+        return mysqli_select_db($this->connection, $database);
+    }
+
     private function escapeString(string $string): string
     {
         return mysqli_real_escape_string($this->connection, $string);
     }
 
-    function execute(string $query): Result
+    function execute(string $query)
     {
-        $result = new Result;
-        $data = mysqli_query($this->connection, $query);
-        $result->error = (mysqli_error($this->connection) != "");
-        $result->description =  mysqli_error($this->connection);
-        if (!$data) return $result;
-        $result->data = mysqli_fetch_all($data,  MYSQLI_ASSOC);;
-        return $result;
+        $result = mysqli_query($this->connection, $query);
+        if ($result === false) throw new Exception($this->getError());
+        if ($result === true) return true;
+        return mysqli_fetch_all($result,  MYSQLI_ASSOC);
     }
 
     function isConnected(): bool
@@ -52,143 +52,18 @@ class MySQL
         return mysqli_error($this->connection);
     }
 
-    function getTableList(): array
+    function createDatabase(string $name): bool
     {
-        //select * from information_schema.TABLES WHERE TABLE_NAME='oc_order
-        $result = $this->execute("SHOW TABLES")->data;
-        if (!$result) return null;
-        $result = array_values($result);
-
-        $tmp = [];
-        foreach ($result as $row) {
-            $row = array_values($row);
-            $tmp[] = $row[0];
-        }
-        return $tmp;
+        return $this->execute("CREATE DATABASE IF NOT EXISTS $name");
     }
 
-    function getTableFieldList(string $tablename): Collection
+    function setTableCharset(string $database, string $tablename, string $charset = "utf8", string $collate = "utf8_general_ci"): bool
     {
-        //select * from information_schema.COLUMNS WHERE TABLE_NAME='oc_order
-
-        $tbl = new Collection;
-        $data = $this->execute("DESCRIBE " . $tablename)->data;
-        if (!$data) return null;
-
-        foreach ($data as $key => $value) {
-            $tb = new Field();
-            $tb->name = $value["Field"];
-            $tb->type = $value["Type"];
-            $tb->null = $value["Null"];
-            $tb->key = $value["Key"];
-            $tb->default = $value["Default"];
-            $tb->extra = $value["Extra"];
-            $tbl->set($key, $tb);
-        }
-
-        return $tbl;
+        return $this->execute("ALTER TABLE `$database`.`$tablename` CONVERT TO CHARACTER SET $charset COLLATE  $collate;");
     }
 
-    function createTableClass(string $destination, string $tablename): bool
+    function indexIsExists(string $database, string $tablename, string $index)
     {
-        $ts = $this->getTableFieldList($tablename);
-
-        $destination = "$destination/{$this->name}/Tables";
-        (new Filesystem)->createDirectory($destination);
-
-        $cg = new CodeGenerator();
-        $cg->open("$destination/$tablename.php");
-
-        $cg->startTag();
-        $cg->line("");
-        $cg->line("class $tablename extends Tet\TableEntity");
-        $cg->line("{");
-        $cg->line("public static string \$tablename = '$tablename';", 1);
-        $cg->line("public static Tet\MySQL \$mySQL;", 1);
-        $cg->line("");
-        $cg->line("const TABLE_NAME = '{$tablename}';", 1);
-        foreach ($ts->toArray() as $value) {
-            $propName  = "COLLUMN_NAME_" . str_replace('-', "_TET_MINUS_", $value->name);
-            $propName = strtoupper($propName);
-            $cg->line("const {$propName} = '{$value->name}';", 1);
-        }
-        $cg->line("");
-        $cg->line("function __construct(Tet\MySQL \$mySQL)", 1);
-        $cg->line("{", 1);
-        $cg->line("\$this::\$mySQL = \$mySQL;", 2);
-        $cg->line("}", 1);
-        $cg->line("}");
-        $cg->close();
-
-        return true;
-    }
-
-    function createDatabaseClass(string $destination, string $name, array $enums): bool
-    {
-
-        $destination = "$destination/{$this->name}";
-        (new Filesystem)->createDirectory($destination);
-
-        $cg = new CodeGenerator();
-        $cg->open("$destination/{$this->name}.php");
-        $cg->startTag();
-        $cg->line("");
-        foreach ($enums as $value) {
-            $cg->line("require(\"Tables/$value.php\");", 0);
-        }
-
-        $cg->line("");
-        $cg->line("class $name");
-        $cg->line("{");
-        foreach ($enums as $value) {
-            $cg->line("public $value \$$value;", 1);
-        }
-        $cg->line("");
-        $cg->line("function __construct(Tet\MySQL \$mySQL)", 1);
-        $cg->line("{", 1);
-        foreach ($enums as $value) {
-            $cg->line("\$this->$value =  new $value(\$mySQL);", 2);
-        }
-        $cg->line("}", 1);
-        $cg->line("}");
-        $cg->close();
-        return true;
-    }
-
-
-    function pullDbScheme($destination): bool
-    {
-
-        $tables = $this->getTableList();
-
-        $this->createDatabaseClass($destination, $this->name, $tables);
-
-        foreach ($tables as $table) {
-            $this->createTableClass($destination, $table);
-        }
-
-        return true;
-    }
-
-    function pushDbScheme($source): bool
-    {
-        return true;
-    }
-
-    function getDatabaseStructure(Fasade $fasade)
-    {        
-        $tables = $this->getTableList();
-
-        $result = [];
-        foreach ($tables as $table) {
-            $fields = $this->getTableFieldList($table)->toArray();
-            foreach ($fields as $field) {
-                $result[$table][] = $field->name;
-            }
-        }
-
-        $fasade->filesystem()->createFile("db_structure.json", json_encode($result));
-
-        return "ok";
+        return $this->execute("SELECT COUNT(1) res FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = '$database' AND table_name='$tablename' AND index_name='$index';");
     }
 }

@@ -7,15 +7,18 @@ use Tet\HTTP\Server;
 
 class Route
 {
-    public $method;
-    public $uri;
+    public string $method;
+    public string $uri;
     public $callback;
+    public bool $default;
 
-    function __construct(string $method, string $path, callable $calback)
+    function __construct(string $method, string $path, callable $calback, bool $default)
     {
         $this->method = $method;
         $this->uri = $path;
         $this->callback = $calback;
+        $this->default = $default;
+        
     }
 
     function isEqual(string $root, string $requesteddURI): bool

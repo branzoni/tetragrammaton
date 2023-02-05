@@ -1,4 +1,5 @@
 <?php
+
 namespace Tet;
 
 use Tet\Common\Fasade;
@@ -29,13 +30,16 @@ class Tet
     function run(): bool
     {
         $route = $this->router->getMatchedRoute();
-        if (!$route) return false;
+        if ($route) {
+            $response = $this->executeRouteCallback($route);
+            if (!$response) return true;
+            return (new Server)->sendResponse($response);
+        } else {
+            $route = $this->router->getDefaultRoute();
+            if ($route) return $this->router->redirect($route->uri);
+        }
 
-        $response = $this->executeRouteCallback($route);
-        if (!$response) return true;
-
-        (new Server)->sendResponse($response);
-        return true;
+        return (new Server)->sendResponse(new Response(null, 404));
     }
 
     private function executeRouteCallback(Route $route): ?Response

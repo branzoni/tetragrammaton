@@ -9,7 +9,7 @@ abstract class TableEntity
 
 	public function getRows(): ?array
 	{
-		return static::$mySQL->execute("SELECT * FROM " . static::$tablename)->data;
+		return static::$mySQL->execute("SELECT * FROM " . static::$tablename);
 	}
 
 	public function createSelectQuery(array $fields, $where = null, array $orderBy = null)
@@ -18,7 +18,7 @@ abstract class TableEntity
 		$query->command = $query::COMMAND_SELECT;
 		$query->fields->add($fields);
 		$query->tablename = static::$tablename;
-		return static::$mySQL->execute($query)->data;		
+		return static::$mySQL->execute($query);		
 	}
 
 	public function createUpdateQuery(array $fields, $where): string

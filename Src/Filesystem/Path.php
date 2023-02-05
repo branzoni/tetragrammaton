@@ -47,18 +47,36 @@ class Path
 
     function isRemote(): bool
     {
+        // возвращает результат проверки, является ли формат пути URL'ом:
+        /**
+         * проблема:
+         * - нужно определять в каком виде получен путь,
+         *  чтобы понимать как его использовать с файловой системой
+         *  или запросами к другим серверам
+        */
         $string = mb_strtolower($this->path);
-        if (preg_match('/^(https|http|ftp)\:\/\//', $string) === 1) return true;
+        if ($this->isURL()) return true;
         if (preg_match('/^(localhost)/', $string) === 1) return true;
         if (preg_match('/\/.*/', $string) === 1) return true; //подходит только для файлов и страниц, где в адресе явно прописан документ вплоть до расширения
         return false;
     }
 
-    function isLocal(): bool
+    function isURL():bool
     {
         $string = mb_strtolower($this->path);
-        if (preg_match('/^[a-z]:\\\/', $string) === 1) return true;
-        if (preg_match('/.*\\\/', $string) === 1) return true;
+        return (preg_match('/^(https|http|ftp|file)\:\/\//', $string) === 1);
+    }
+
+    function isLocal(): bool
+    {
+        // возвращает результат проверки, является ли формат пути внутренним:
+         //nо есть написан он в формате 
+        return !$this->isURL();
+    }
+
+    function isWindowsPath():bool
+    {
+        return (preg_match('/^([a-z]|[A-Z]):\\\/', $this->path) === 1);
     }
 
     function getLocalPath(): string
@@ -116,7 +134,8 @@ class Path
 
 
     function isExists(): bool
-    {
+    {   
+        // сюда должен попадать только реальный путь (роуты не подходят)     
         return (file_exists($this->path));
     }
 
