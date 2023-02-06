@@ -2,7 +2,7 @@
 
 namespace Tet\HTTP;
 
-use Tet\Collection;
+use Tet\Common\Collection;
 
 class ServerRequest
 {
