@@ -39,12 +39,12 @@ class Router
 
     function put(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("post", $path, $calback, $default));
+        return $this->addRoute(new Route("put", $path, $calback, $default));
     }
 
     function option(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("post", $path, $calback, $default));
+        return $this->addRoute(new Route("option", $path, $calback, $default));
     }
 
     function getMatchedRoute(): ?Route
@@ -99,14 +99,16 @@ class Router
     function redirect(string $url): bool
     {
         $location = $url;
-        
+       
         $path = new Path($location);
         if ($path->isLocal()) {
-            $location = $this->root . $location;
+            $location = realpath($this->root) . $location;
             $location = str_replace("//", "/", $location);        
+            $location = (new Server)->getProtocol() . "://" . (new Path($location))->getRemotePath();
         }
-        
+
         header("Location: $location");
+        
         return true;
     }
 }

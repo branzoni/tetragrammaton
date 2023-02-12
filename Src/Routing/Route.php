@@ -28,8 +28,10 @@ class Route
 
     function isRequested($root): bool
     {
-        $root = (new Path($root))->getRelativePath();
-        return $root . $this->uri == (new Server)->getRequestedURI();
+        $route = (new Path($root))->getRelativePath() . $this->uri;
+        $requested = (new Server)->getRequestedURI();
+        $requested = explode("?",$requested)[0];        
+        return $route  == $requested;
     }
 
     function getArguments(): ?array

@@ -2,57 +2,47 @@
 
 namespace Tet\Database;
 
+use Tet\Common\CollectionReadOnly;
+
 abstract class TableEntity
 {
 	public static string $tablename;
 	public static MySQL $mySQL;
 
-	public function getRows(): ?array
-	{
-		return static::$mySQL->execute("SELECT * FROM " . static::$tablename);
+	protected function execute(): ?array
+	{		
+		$query = "SELECT * FROM "  . static::$tablename;		
+		$rows = static::$mySQL->execute($query);
+		return $rows;
 	}
 
-	public function createSelectQuery(array $fields, $where = null, array $orderBy = null)
+	function select(...$fields): CollectionReadOnly
 	{
-		$query = new Query;
-		$query->command = $query::COMMAND_SELECT;
-		$query->fields->add($fields);
-		$query->tablename = static::$tablename;
-		return static::$mySQL->execute($query);		
+		if(gettype($fields) == "array"){
+			if(count($fields) == 1) $fields = $fields[0];
+		}
+		
+		if($fields == [])
+		{
+		 	$fields = "*";
+		}else{
+			$fields = implode(", " , $fields);
+		}
+
+		$query = "SELECT $fields FROM "  . static::$tablename;
+		$rows = static::$mySQL->execute($query);		
+		return new CollectionReadOnly($rows);
 	}
 
-	public function createUpdateQuery(array $fields, $where): string
-	{
-		$query = new Query;
-		$query->command = $query::COMMAND_UPDATE;
-		$query->fields->add($fields);
-		$query->tablename = static::$tablename;
-		return $query;
-	}
 
-	public function createInsertQuery(array $fields): string
+	function getColumn(...$colnames): CollectionReadOnly
 	{
-		$query = new Query;
-		$query->command = $query::COMMAND_INSERT;
-		$query->fields->add($fields);
-		$query->tablename = static::$tablename;
-		return $query;
-	}
+		$tmp = $this->execute();
 
-	public function createDeleteQuery($where): string
-	{
-		$query = new Query;
-		$query->command = $query::COMMAND_DELETE;
-		$query->where = $where;
-		$query->tablename = static::$tablename;
-		return $query;
+		$result = [];
+		foreach ($colnames as $colname) {
+			$result[$colname] = array_column($tmp, $colname);
+		}
+		return new CollectionReadOnly($result);
 	}
-	
-	// function duplicate($idFieldName, $idFieldValue)
-	// {
-
-	// 	$fieldsString = implode(", ", $this->getFieldNames());
-	// 	$query = "INSERT INTO `" . $this->name . "` ($fieldsString) SELECT " . str_replace($idFieldName, "NULL", $fieldsString) . " FROM `" . $this->name . "` WHERE `" . $idFieldName . "` = " . $idFieldValue;
-	// 	return $this->execute($query);
-	// }
 }

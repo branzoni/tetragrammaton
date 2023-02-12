@@ -12,4 +12,17 @@ class Token
         $this->header = $header;
         $this->payload = $payload;
     }
+
+
+    function isNotBefore(): bool
+    {
+        if (!isset($this->payload["nbf"])) return false;
+        return ($this->payload["nbf"] > time());
+    }
+
+    function isExpired(): bool
+    {
+        if (!isset($this->payload["exp"])) return false;
+        return ($this->payload["exp"] < time());
+    }
 }

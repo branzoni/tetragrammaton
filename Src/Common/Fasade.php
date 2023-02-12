@@ -7,22 +7,33 @@ use Tet\HTTP\Server;
 use Tet\Mail\Mailer;
 use Tet\Database\MySQL;
 use Tet\Filesystem\Filesystem;
+use Tet\Security\Auth;
 
 class Fasade
 {
     protected Collection $params;
     protected MySQL $mySQL;
+    protected Auth $auth;
+    protected Log $log;
+
+    function auth():Auth
+    {
+        return $this->auth ?? $this->auth = new Auth;
+    }
+
+    function log():Log
+    {
+        return $this->log ?? $this->log = new Log;
+    }
 
     function params(): Collection
     {
-        if (!isset($this->params)) $this->params = new Collection;
-        return $this->params;
+        return $this->params ??  $this->params = new Collection;
     }
 
     function mySQL(): MySQL
     {
-        if (!isset($this->mySQL)) $this->mySQL = new MySQL;
-        return $this->mySQL;
+        return $this->mySQL ?? $this->mySQL = new MySQL;
     }
 
     function filesystem(): Filesystem

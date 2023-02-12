@@ -1,7 +1,8 @@
 <?php
 
-namespace Tet\Database;
+namespace Tet\Database\MySQL;
 
+use mysqli;
 use Tet\Common\Collection;
 
 class WhereCondition
@@ -23,9 +24,10 @@ class Query
 {
 	public string $tablename;
 	public string $command;
-	public Fields $fields;
+	public Collection $fields;
 	public $where;
 	public $orderBy;
+	private mysqli $connection;
 
 	const COMMAND_SELECT = "SELECT";
 	const COMMAND_INSERT = "INSERT";
@@ -38,9 +40,10 @@ class Query
 	// 	$this->orderBy->add($values);
 	// }
 
-	function __construct()
+	function __construct(mysqli $connection)
 	{
-		$this->fields = new Fields;
+		$this->fields = new Collection;
+		$this->connection = $connection;
 	}
 
 	function __toString(): string
@@ -113,7 +116,7 @@ class Query
 
 	private function getUpdateQuery(): string
 	{
-		$fields_section = "";
+		$fields_section = "";		
 		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section) {
 
 			$comma = $counter < $count ? ", " : "";
@@ -179,8 +182,8 @@ class Query
 
 	private function escapeString(string $string): string
 	{
-		return $string;
-		//return mysqli_real_escape_string($this->connection, $string);
+		//return $string;
+		return mysqli_real_escape_string($this->connection, $string);
 	}
 
 	private function getQuote($value)

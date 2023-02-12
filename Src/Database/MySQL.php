@@ -3,18 +3,19 @@
 namespace Tet\Database;
 
 use Exception;
+use Tet\Database\MySQL\Database;
+use Tet\Database\MySQL\Query;
 
 class MySQL
 {
-    private $connection;
     public $name;
+    private $connection;
 
-    function open(string $hostname, string $name, string $user, string $password, string $charset = "utf8"): bool
+    function open(string $hostname,  string $database, string $user, string $password, string $charset = "utf8"): bool
     {
-        $this->name = $name;
-        $this->connection = mysqli_connect($hostname, $user, $password, $name);
+        $this->connection = mysqli_connect($hostname, $user, $password, $database);
         if (!$this->connection) return null;
-        mysqli_set_charset($this->connection, $charset);
+        $this->setCharset($charset);
 
         return boolval($this->connection);
     }
@@ -24,15 +25,20 @@ class MySQL
         return mysqli_close($this->connection);
     }
 
-    function selectDatabase(string $database): bool
+    function isConnected(): bool
     {
-        return mysqli_select_db($this->connection, $database);
+        return boolval($this->connection);
     }
 
-    private function escapeString(string $string): string
+    function setCharset(string $charset = "utf8"):bool
     {
-        return mysqli_real_escape_string($this->connection, $string);
+        return mysqli_set_charset($this->connection, $charset);
     }
+
+    function getError(): string
+    {
+        return mysqli_error($this->connection);
+    }    
 
     function execute(string $query)
     {
@@ -41,29 +47,24 @@ class MySQL
         if ($result === true) return true;
         return mysqli_fetch_all($result,  MYSQLI_ASSOC);
     }
-
-    function isConnected(): bool
+    
+    function getCurrentDb():Database
     {
-        return boolval($this->connection);
+        return new Database($this);
     }
 
-    function getError(): string
+    function selectDB(string $database): bool
     {
-        return mysqli_error($this->connection);
+        return mysqli_select_db($this->connection, $database);
     }
 
-    function createDatabase(string $name): bool
+    function createDB(string $name): bool
     {
         return $this->execute("CREATE DATABASE IF NOT EXISTS $name");
     }
 
-    function setTableCharset(string $database, string $tablename, string $charset = "utf8", string $collate = "utf8_general_ci"): bool
-    {
-        return $this->execute("ALTER TABLE `$database`.`$tablename` CONVERT TO CHARACTER SET $charset COLLATE  $collate;");
-    }
-
-    function indexIsExists(string $database, string $tablename, string $index)
-    {
-        return $this->execute("SELECT COUNT(1) res FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = '$database' AND table_name='$tablename' AND index_name='$index';");
-    }
+   function getQuery():Query
+   {
+     return new  Query($this->connection);
+   }
 }

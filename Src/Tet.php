@@ -17,19 +17,18 @@ class Tet
 
     function router($root): Router
     {
-        if (!isset($this->router)) $this->router = new Router($root);
-        return $this->router;
+        return $this->router ?? $this->router = new Router($root);
     }
 
     function fasade(): Fasade
     {
-        if (!isset($this->fasade)) $this->fasade = new Fasade;
-        return $this->fasade;
+        return $this->fasade ?? $this->fasade = new Fasade;
     }
 
     function run(): bool
     {
         $route = $this->router->getMatchedRoute();
+
         if ($route) {
             $response = $this->executeRouteCallback($route);
             if (!$response) return true;
@@ -69,7 +68,7 @@ class Tet
         }
     }
 
-    function setErrorHandler()
+    public function setErrorHandler()
     {
         set_error_handler(function ($code, $message, $file, $line) {
             $this->error_callback($code, $message, $file, $line);
@@ -77,7 +76,7 @@ class Tet
         });
     }
 
-    function setExeptionHandler()
+    public function setExeptionHandler()
     {
         set_exception_handler(function (Throwable $e) {
             $this->error_callback($e->getCode(),  $e->getMessage(), $e->getFile(), $e->getLine());
@@ -97,8 +96,16 @@ class Tet
         $tmp->url = $srv->getRequest()->getURI();
         $tmp->method = $srv->getRequest()->getMethod();
 
-        $response = new Response();
-        $response->body = json_encode($tmp);
-        $srv->sendResponse($response);
+
+        $levels = [
+            "0" => "qqq",
+            "1" => "Error",
+            "2" => "Warning",
+            "4" => "Parse",
+            "8" => "Notice"
+        ];
+              
+        $this->fasade()->log()->add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
+        $this->fasade()->server()->sendResponse(new Response(json_encode($tmp), 200));
     }
 }

@@ -29,10 +29,10 @@ class Coder
         return $token;
     }
 
-    function isValid(string $token): bool
+    function validate(string $token): bool
     {
         $decoded = $this->decode($token);
-        $encoded = $this->encode($decoded["header"], $decoded["payload"]);
+        $encoded = $this->encode($decoded);
         return ($token === $encoded);
     }
 

@@ -26,6 +26,19 @@ class Filesystem
         return true;
     }
 
+    function appendToFile(string $path, $data = null): bool
+    {
+        $file = new File($path);
+        if (!$this->createDirectory($file->getDirname())) return false;
+
+        $stream = fopen($path, "a+");        
+        if(!$stream) return false;
+        if(!fwrite($stream, $data)) return false;
+        if(!fclose($stream)) return false;
+   
+        return true;
+    }
+
     function getPath(string $path): Path
     {
         return new Path($path);

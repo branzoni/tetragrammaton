@@ -2,6 +2,8 @@
 
 namespace Tet\HTTP;
 
+use JetBrains\PhpStorm\NoReturn;
+
 class Server
 {
     public function getRequest(): ServerRequest
@@ -20,11 +22,8 @@ class Server
         $tmp = $tmp[0];
         $tmp = strtolower($tmp);
 
-        if (isset($_SERVER["HTTPS"])) {
-            if ($_SERVER["HTTPS"] != "") $tmp = "https";
-        }
-
-        return $tmp;
+        if (!isset($_SERVER["HTTPS"])) return $tmp;
+        return "https";
     }
 
     public function getHost(): string
@@ -58,9 +57,7 @@ class Server
 
     function sendResponse(Response $response, bool $clean_buffer = false): bool
     {
-        if ($clean_buffer && ob_get_level())  ob_end_clean();
-
-        //$class = round($response->code/100);
+        if ($clean_buffer && ob_get_level())  ob_end_clean();        
         
         http_response_code($response->code);
         
