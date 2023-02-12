@@ -21,7 +21,7 @@ class DbScheme
         $dbname =  $this->db->getName();
         $tables = $this->db->getTables();
 
-        if($namespace !="") $namespace = $namespace . "\\";
+        if ($namespace != "") $namespace = $namespace . "\\";
 
         (new Filesystem)->createDirectory("$destination/$dbname");
         (new Filesystem)->createDirectory("$destination/$dbname/Tables");
@@ -136,7 +136,7 @@ class DbScheme
         $cg->line("function get(string \$name):{$tablename}_row", 1);
         $cg->line("{", 1);
         //$cg->line("return \$this->values[\$name];", 2);
-        $cg->line("return new {$tablename}_row(\$this->values[\$name]);", 2);        
+        $cg->line("return new {$tablename}_row(\$this->values[\$name]);", 2);
         $cg->line("}", 1);
         $cg->line("}");
         $cg->close();
@@ -191,7 +191,7 @@ class DbScheme
         $cg->line("foreach (\$rows as \$row) \$result[] = new {$tablename}_row(\$row);", 2);
         $cg->line("return \$result;", 2);
         $cg->line("}", 1);
-        
+
         $cg->line("");
         $cg->line("function getRows(): ?{$tablename}_row_collection", 1);
         $cg->line("{", 1);

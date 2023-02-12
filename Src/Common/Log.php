@@ -11,10 +11,10 @@ class Log
     const LVL_EMERGENCY = "Emergency";
     const LVL_ALERT = "Alert";
     const LVL_CRITICAL = "Critical";
-    const LVL_ERROR = "Error";//1
-    const LVL_WARNING = "Warning";//2
-    const LVL_PARSE = "Parse";//4
-    const LVL_NOTICE = "Notice";//8
+    const LVL_ERROR = "Error"; //1
+    const LVL_WARNING = "Warning"; //2
+    const LVL_PARSE = "Parse"; //4
+    const LVL_NOTICE = "Notice"; //8
     const LVL_INFO = "Info";
     const LVL_DEBUG = "Debug";
 
@@ -65,13 +65,13 @@ class Log
 
     public function add(string $level, string $message): bool
     {
-        if(!$this->filePath) return false;
-        
+        if (!$this->filePath) return false;
+
         $data = [
             "[" . date("Y-m-d H-i-s") . "]",
-             "[$level]",
-             "[$message]",
-             "\r\n"
+            "[$level]",
+            "[$message]",
+            "\r\n"
         ];
 
         $data = implode(" ", $data);

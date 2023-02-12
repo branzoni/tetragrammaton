@@ -24,8 +24,7 @@ class Path
     */
     function getDirname(): string
     {
-        $tmp = pathinfo($this->path, PATHINFO_DIRNAME);
-        return $tmp;
+        return pathinfo($this->path, PATHINFO_DIRNAME);        
     }
 
     /*
@@ -43,6 +42,49 @@ class Path
     {
         return basename($this->path);
         return pathinfo($this->path, PATHINFO_BASENAME);
+    }
+
+    function getSegments(): array
+    {
+        $tmp = $this->path;
+        if ($tmp[0] = "/") $tmp = substr($tmp, 1);
+        return explode("/", $tmp);
+    }
+
+    function getSegmentCount(): int
+    {
+        return count($this->getSegments());
+    }
+
+    function getLocalPath(): string
+    {
+        return $this->getPath(true);
+    }
+
+    function getRemotePath(): string
+    {
+        return $this->getPath(false);
+    }
+
+    function getRelativePath(): string
+    {
+        $server = new Server;
+        $tmp = $this->path;
+        $tmp = str_replace("\\", "/", $tmp);
+        $tmp = str_replace([$server->getRoot(), $server->getRoot(false)], "", $tmp);
+        return $tmp;
+    }
+
+    function getRealPath(): string
+    {
+        return realpath($this->path);
+    }
+
+    private function getPath(bool $local = true): string
+    {
+        $tmp = $this->getRelativePath();
+        $tmp = (new Server)->getRoot($local) . $tmp;
+        return $tmp;
     }
 
     function isRemote(): bool
@@ -79,36 +121,12 @@ class Path
         return (preg_match('/^([a-z]|[A-Z]):\\\/', $this->path) === 1);
     }
 
-    function getLocalPath(): string
-    {
-        return $this->getPath(true);
+    function isExists(): bool
+    {   
+        // сюда должен попадать только реальный путь (роуты не подходят)     
+        return (file_exists($this->path));
     }
 
-    function getRemotePath(): string
-    {
-        return $this->getPath(false);
-    }
-
-    function getRelativePath(): string
-    {
-        $server = new Server;
-        $tmp = $this->path;
-        $tmp = str_replace("\\", "/", $tmp);
-        $tmp = str_replace([$server->getRoot(), $server->getRoot(false)], "", $tmp);
-        return $tmp;
-    }
-
-    function getRealPath(): string
-    {
-        return realpath($this->path);
-    }
-
-    private function getPath(bool $local = true): string
-    {
-        $tmp = $this->getRelativePath();
-        $tmp = (new Server)->getRoot($local) . $tmp;
-        return $tmp;
-    }
 
     function unlink(): bool
     {
@@ -131,14 +149,6 @@ class Path
     {
         return $this->rename($destination);
     }
-
-
-    function isExists(): bool
-    {   
-        // сюда должен попадать только реальный путь (роуты не подходят)     
-        return (file_exists($this->path));
-    }
-
 
     function copy(string $destination): bool
     {
@@ -164,17 +174,5 @@ class Path
         fclose($source);
 
         return true;
-    }
-
-    function getSegments(): array
-    {
-        $tmp = $this->path;
-        if ($tmp[0] = "/") $tmp = substr($tmp, 1);
-        return explode("/", $tmp);
-    }
-
-    function getSegmentCount(): int
-    {
-        return count($this->getSegments());
     }
 }

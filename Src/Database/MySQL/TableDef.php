@@ -2,15 +2,12 @@
 
 namespace Tet\Database\MySQL;
 
-use Tet\Common\Collection;
-
 class TableDef
 {
     public string $name;
     public string $charset;
     public Fields $fields = [];
     public string $primary_key;
-    //public array $indexes = [];
 
     function __construct(string $name, string $primary_key = "", $charset = "utf8")
     {
@@ -29,8 +26,10 @@ class TableDef
         $field->default = $default;
         $field->autoIncriment = $autoIncriment;
         $field->comment = $comment;
-        $this->fields->set($name, $field);
 
+        $tmp = $this->fields->toArray();
+        $tmp[$name] = $field;
+        $this->fields = new Fields($tmp);
         return true;
     }
 }

@@ -19,5 +19,4 @@ class Collection extends CollectionReadOnly
             $this->set($name, $value);
         }
     }
-
 }

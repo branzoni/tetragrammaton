@@ -16,12 +16,12 @@ class Fasade
     protected Auth $auth;
     protected Log $log;
 
-    function auth():Auth
+    function auth(): Auth
     {
         return $this->auth ?? $this->auth = new Auth;
     }
 
-    function log():Log
+    function log(): Log
     {
         return $this->log ?? $this->log = new Log;
     }

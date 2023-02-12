@@ -8,7 +8,7 @@ class CollectionReadOnly
 
     function __construct(array $values = [])
     {
-            $this->values = $values;
+        $this->values = $values;
     }
 
     function get(string $name)
@@ -42,23 +42,9 @@ class CollectionReadOnly
         return array_key_exists($name, $this->values);
     }
 
-    // /**
-    //  *  Проверяет наличие в массиве элемента с указанным именем
-    //  */
-    // function isSet(string $name): bool
-    // {
-    //     return isset($this->values[$name]);
-    // }
-
-    /**Функция проверяет наличие параметра и что его значение находится в списке, если один из пунктов не выполняется, возвращает false*/
-    // function isOneOf(string $name, array $names): bool
-    // {
-    //     return array_search($this->$name, $names) !== false;
-    // }
-
     /**
      * $callback($key, $value, $count, $index);
-    */
+     */
     function forEach($callback)
     {
         $count = $this->getCount();

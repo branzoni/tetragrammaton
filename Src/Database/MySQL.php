@@ -30,7 +30,7 @@ class MySQL
         return boolval($this->connection);
     }
 
-    function setCharset(string $charset = "utf8"):bool
+    function setCharset(string $charset = "utf8"): bool
     {
         return mysqli_set_charset($this->connection, $charset);
     }
@@ -38,7 +38,7 @@ class MySQL
     function getError(): string
     {
         return mysqli_error($this->connection);
-    }    
+    }
 
     function execute(string $query)
     {
@@ -47,8 +47,8 @@ class MySQL
         if ($result === true) return true;
         return mysqli_fetch_all($result,  MYSQLI_ASSOC);
     }
-    
-    function getCurrentDb():Database
+
+    function getCurrentDb(): Database
     {
         return new Database($this);
     }
@@ -63,8 +63,8 @@ class MySQL
         return $this->execute("CREATE DATABASE IF NOT EXISTS $name");
     }
 
-   function getQuery():Query
-   {
-     return new  Query($this->connection);
-   }
+    function getQuery(): Query
+    {
+        return new  Query($this->connection);
+    }
 }
