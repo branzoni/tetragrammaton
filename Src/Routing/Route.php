@@ -18,7 +18,6 @@ class Route
         $this->uri = $path;
         $this->callback = $calback;
         $this->default = $default;
-        
     }
 
     function isEqual(string $root, string $requesteddURI): bool
@@ -27,11 +26,34 @@ class Route
     }
 
     function isRequested($root): bool
-    {
+    {     
         $route = (new Path($root))->getRelativePath() . $this->uri;
+        $route = str_replace("//","/",$route);
         $requested = (new Server)->getRequestedURI();
-        $requested = explode("?",$requested)[0];        
-        return $route  == $requested;
+        $requested = explode("?", $requested)[0];
+        //echo "$route - $requested<br>";
+        if ($route  == $requested) return true;
+
+        $path1 = new Path($route);        
+        $path2 = new Path($requested);
+
+        //echo "$path1 - $path2<br>";
+        if ($path1->getSegmentCount() != $path2->getSegmentCount()) return false;
+
+
+        //$args = [];
+        $count = $path1->getSegmentCount();
+        $path_1_segments = $path1->getSegments();
+        $path_2_segments = $path2->getSegments();
+
+        // перебираем сегменты
+        for ($i = 0; $i <= $count - 1; $i++) {
+            $segment_1 = $path_1_segments[$i];
+            $segment_2 = $path_2_segments[$i];
+            if (!$this->isVariable($segment_1) && $segment_1 != $segment_2) return false;
+        }
+
+        return true;
     }
 
     function getArguments(): ?array
@@ -39,10 +61,16 @@ class Route
         if (!$this->hasVariables()) return null;
 
         // сравнение структуры запросов
-        $path1 = new Path(($this->uri));
-        $path2 = new Path((new Server)->getRequestedURI());
-        if ($path1->getSegmentCount() != $path2->getSegmentCount()) return null;
+        $path1 = (new Path($this->uri))->getRelativePath();
+        $path1 = new Path($path1);
 
+        $path2 = new Path((new Server)->getRequestedURI());
+        $tmp = $path2->getSegmentCount() - $path1->getSegmentCount();
+        $tmp = "/" . implode("/", array_slice($path2->getSegments(), $tmp));
+        $path2 = new Path($tmp);
+
+        if ($path1->getSegmentCount() != $path2->getSegmentCount()) return null;
+        //echo "$path1 - $path2 <br>";
         $args = [];
         $count = $path1->getSegmentCount();
         $path_1_segments = $path1->getSegments();
@@ -76,6 +104,6 @@ class Route
 
     private function getVarialbeName(string $segment)
     {
-        return str_replace(['{', '}'], '', $segment);
+        return str_replace(["{", "}"], "", $segment);
     }
 }

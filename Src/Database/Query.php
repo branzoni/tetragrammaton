@@ -1,6 +1,6 @@
 <?php
 
-namespace Tet\Database\MySQL;
+namespace Tet\Database;
 
 use mysqli;
 use Tet\Common\Collection;
@@ -24,7 +24,7 @@ class Query
 {
 	public string $tablename;
 	public string $command;
-	public Collection $fields;
+	public Collection $columns;
 	public $where;
 	public $orderBy;
 	private mysqli $connection;
@@ -42,7 +42,7 @@ class Query
 
 	function __construct(mysqli $connection)
 	{
-		$this->fields = new Collection;
+		$this->columns = new Collection;
 		$this->connection = $connection;
 	}
 
@@ -79,55 +79,55 @@ class Query
 	{
 		// перечисляем название поле		
 
-		$fields_section = "";
-		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section) {
+		$columns_section = "";
+		$this->columns->forEach(function ($key, $value, $count, $counter) use (&$columns_section) {
 			$comma = $counter < $count ? ", " : "";
 			//if ($value != "*") $value = "`$value`";
 			if ($value != "*") $value = "$value";
-			$fields_section = "{$fields_section}{$value}{$comma}";
+			$columns_section = "{$columns_section}{$value}{$comma}";
 		});
 
 		$where_section = $this->getWhereSection();
 		$order_section = $this->getOrderSection();
 
 		// финальная сборка частей
-		$query = $this::COMMAND_SELECT . " $fields_section FROM `{$this->tablename}` $where_section $order_section";
+		$query = $this::COMMAND_SELECT . " $columns_section FROM `{$this->tablename}` $where_section $order_section";
 		$query = trim($query);
 		return $query;
 	}
 
 	private function getInsertQuery(): string
 	{
-		$fields_section = "";
+		$columns_section = "";
 		$values_section = "";
-		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section, &$values_section) {
+		$this->columns->forEach(function ($key, $value, $count, $counter) use (&$columns_section, &$values_section) {
 
 
 			$comma = $counter < $count ? ", " : "";
-			$fields_section = "{$fields_section} `$key`{$comma}";
+			$columns_section = "{$columns_section} `$key`{$comma}";
 
 			$quote = $this->getQuote($value);
 			$value = $this->escapeString($value);
 			$values_section = "{$values_section}{$quote}{$value}{$quote}{$comma}";
 		});
 
-		return $this::COMMAND_INSERT . " INTO `{$this->tablename}` ($fields_section) VALUES ($values_section)";
+		return $this::COMMAND_INSERT . " INTO `{$this->tablename}` ($columns_section) VALUES ($values_section)";
 	}
 
 	private function getUpdateQuery(): string
 	{
-		$fields_section = "";		
-		$this->fields->forEach(function ($key, $value, $count, $counter) use (&$fields_section) {
+		$columns_section = "";		
+		$this->columns->forEach(function ($key, $value, $count, $counter) use (&$columns_section) {
 
 			$comma = $counter < $count ? ", " : "";
 			$quote = $this->getQuote($value);
 			$value = $this->escapeString($value);
-			$fields_section = "{$fields_section} `$key` = {$quote}{$value}{$quote}{$comma}";
+			$columns_section = "{$columns_section} `$key` = {$quote}{$value}{$quote}{$comma}";
 		});
 
 		$where_section = $this->getWhereSection();
 
-		return $this::COMMAND_UPDATE . " `{$this->tablename}` SET {$fields_section} {$where_section}";
+		return $this::COMMAND_UPDATE . " `{$this->tablename}` SET {$columns_section} {$where_section}";
 	}
 
 	private function getDeleteQuery(): string

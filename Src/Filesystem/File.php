@@ -20,6 +20,11 @@ class File extends Path
         return file_get_contents($this->path);
     }
 
+    function getHash()
+    {
+        return md5_file($this->path);
+    }
+
     function __toString()
     {
 

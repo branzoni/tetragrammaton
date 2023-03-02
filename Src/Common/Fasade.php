@@ -15,6 +15,7 @@ class Fasade
     protected MySQL $mySQL;
     protected Auth $auth;
     protected Log $log;
+    protected Mailer $mailer;
 
     function auth(): Auth
     {
@@ -58,6 +59,6 @@ class Fasade
 
     function mailer(): Mailer
     {
-        return new Mailer;
+        return $this->mailer ?? $this->mailer = new Mailer;
     }
 }

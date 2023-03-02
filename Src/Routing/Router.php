@@ -22,6 +22,12 @@ class Router
         $this->root = $root;
     }
 
+
+    function arr(Route ...$router)
+    {
+        array_merge($this->routes, $router);
+    }
+
     function any(string $path, $calback, $default = false): Router
     {
         return $this->addRoute(new Route("any", $path, $calback, $default));
@@ -58,9 +64,6 @@ class Router
             // простое совпадение            
             if ($route->method != "any" && $requestMethod <> $route->method) continue;
             if ($route->isRequested($this->root)) return $route;
-            // получение аргументов включает проверку сложного совпадения роутов
-            $args = $route->getArguments();
-            if ($args) return $route;
         }
 
         return null;

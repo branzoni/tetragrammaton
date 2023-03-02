@@ -6,13 +6,23 @@ use Tet\HTTP\ServerRequest;
 use Tet\Security\JWT\Coder;
 use Tet\Security\JWT\Token;
 
+
+class TokenData
+{
+    public string $type;
+    public $token;
+    public $login;
+    public $password;
+}
+
+
 class Auth
 {
     private string $tokenSecret;
 
     public function check($callback = null, string $type = "Bearer"): bool
     {
-        $tokenData = $this->getTokenDataFromRequest();
+        $tokenData = $this->getTokenData();
         if (!$tokenData) return false;
         if ($tokenData->type != $type) return false;
         if ($this->isBasic($tokenData)) return $this->proccessBasicToken($tokenData->token, $callback);
@@ -43,9 +53,9 @@ class Auth
         return $tokenData->type == "Basic";
     }
 
-    private function getTokenDataFromRequest(): ?object
+    function getTokenData(): ?TokenData
     {
-        $authHeader = (new ServerRequest)->getHeaders()->get("Authorization");
+        $authHeader = (new ServerRequest)->getHeaders()->get("Authorization");        
         if (!$authHeader) return null;
 
         $tmp = explode(" ", $authHeader);
@@ -53,12 +63,11 @@ class Auth
         if (!$tmp[0]) return null;
         if (!$tmp[1]) return null;
 
-        $tmp = [
-            "type" => $tmp[0],
-            "token" => $tmp[1]
-        ];
 
-        return (object) $tmp;
+        $td = new TokenData;
+        [$td->type, $td->token] = $tmp;
+        if($td->type == "Basic") $td = $this->decodeBasicToken($td);        
+        return $td;
     }
 
     private function proccessBearerToken(string $token): bool
@@ -82,5 +91,14 @@ class Auth
         if (!$callback($login, $password)) return false;
 
         return true;
+    }
+
+    function decodeBasicToken(TokenData $td):TokenData
+    {
+        $tmp = base64_decode($td->token);
+        $tmp = explode(":", $tmp);
+        if (count($tmp) != 2) return null;
+        [$td->login, $td->password]  = $tmp;        
+        return $td;
     }
 }

@@ -3,13 +3,15 @@
 namespace Tet\Database;
 
 use Exception;
-use Tet\Database\MySQL\Database;
-use Tet\Database\MySQL\Query;
+use Tet\Database\Database;
+use Tet\Database\DatabaseDef;
+use Tet\Database\Query;
+use Tet\Database\TypesDef;
 
 class MySQL
 {
     public $name;
-    private $connection;
+    private \mysqli $connection;
 
     function open(string $hostname,  string $database, string $user, string $password, string $charset = "utf8"): bool
     {
@@ -25,6 +27,29 @@ class MySQL
         return mysqli_close($this->connection);
     }
 
+    function execute(string $query)
+    {
+        $result = mysqli_query($this->connection, $query);
+        if ($result === false) throw new Exception($this->getError());
+        if ($result === true) return true;
+        return mysqli_fetch_all($result,  MYSQLI_ASSOC);
+    }
+
+
+    function getRecord(string $query, int $index = 0): ?object
+    {
+        $result = $this->execute($query);
+        if (!$result) return null;
+        $result =  $result[$index];
+        $result = (object)  $result;
+        return  $result;
+    }
+
+    function getError(): string
+    {
+        return mysqli_error($this->connection);
+    }
+
     function isConnected(): bool
     {
         return boolval($this->connection);
@@ -35,17 +60,14 @@ class MySQL
         return mysqli_set_charset($this->connection, $charset);
     }
 
-    function getError(): string
+    function createDatabase(string $name): bool
     {
-        return mysqli_error($this->connection);
+        return $this->execute("CREATE DATABASE IF NOT EXISTS $name");
     }
 
-    function execute(string $query)
+    function selectDatabase(string $database): bool
     {
-        $result = mysqli_query($this->connection, $query);
-        if ($result === false) throw new Exception($this->getError());
-        if ($result === true) return true;
-        return mysqli_fetch_all($result,  MYSQLI_ASSOC);
+        return mysqli_select_db($this->connection, $database);
     }
 
     function getCurrentDb(): Database
@@ -53,18 +75,41 @@ class MySQL
         return new Database($this);
     }
 
-    function selectDB(string $database): bool
+    function createDatabase2(string $name): Database
     {
-        return mysqli_select_db($this->connection, $database);
+        $this->createDatabase($name);
+        $this->selectDatabase($name);
+        return $this->getCurrentDb();
     }
 
-    function createDB(string $name): bool
+    function createDatabaseFromSchema(DatabaseDef $databaseDef): bool
     {
-        return $this->execute("CREATE DATABASE IF NOT EXISTS $name");
+        // создаем структуру базы        
+        $db = $this->createDatabase2($databaseDef->name);
+        $db->createTablesFromSchema($databaseDef);
+        $db->deleteOutSchemaTables($databaseDef);
+        return true;
     }
 
     function getQuery(): Query
     {
         return new  Query($this->connection);
+    }
+
+    static function types(): TypesDef
+    {
+        return  new TypesDef;
+    }
+
+    function escapeString(string ...$strings)
+    {
+        if (count($strings) == 1) return $this->connection->escape_string($strings[0]);
+
+        $results = [];
+        foreach ($strings as $string) {
+            $results[] = $this->connection->escape_string($string);
+        }
+
+        return $results;
     }
 }

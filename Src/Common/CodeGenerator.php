@@ -50,4 +50,10 @@ class CodeGenerator
     {
         fwrite($this->stream, str_repeat($this::TAB_SYMBOL, $this::TAB_LENGTH * $tabCount) .  $line . $this::EOF);
     }
+
+    function lines($lines){
+        foreach($lines as $line){
+            $this->line($line);
+        }
+    }
 }

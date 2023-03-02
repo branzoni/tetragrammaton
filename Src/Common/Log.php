@@ -6,7 +6,7 @@ use Tet\Filesystem\Filesystem;
 
 class Log
 {
-    protected string $filePath;
+    protected ?string $filePath = null;
 
     const LVL_EMERGENCY = "Emergency";
     const LVL_ALERT = "Alert";
@@ -63,7 +63,7 @@ class Log
         $this->add($this::LVL_DEBUG, $data);
     }
 
-    public function add(string $level, string $message): bool
+    public function add(?string $level, ?string $message): bool
     {
         if (!$this->filePath) return false;
 

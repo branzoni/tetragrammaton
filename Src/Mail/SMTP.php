@@ -18,12 +18,12 @@ class SMTP
 		return $this->socket->open();
 	}
 
-	function sendCommand(string $commad):string
+	function sendCommand(string $commad):?string
 	{
 		return $this->socket->writeAndRead("$commad\r\n");
 	}
 
-	function sendHELO(string$serverName):string
+	function sendHELO(string$serverName):?string
 	{
 		return $this->sendCommand("EHLO $serverName");
 	}

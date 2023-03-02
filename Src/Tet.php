@@ -2,6 +2,7 @@
 
 namespace Tet;
 
+use Exception;
 use Tet\Common\Fasade;
 use Tet\HTTP\Response;
 use Tet\HTTP\Server;
@@ -9,11 +10,12 @@ use Tet\Routing\Router;
 use Tet\Routing\Route;
 use \Throwable;
 use \stdClass;
+use Tet\Filesystem\File;
 
 class Tet
 {
-    protected Router $router;
-    protected Fasade $fasade;
+    private Router $router;
+    private Fasade $fasade;
 
     function router($root): Router
     {
@@ -66,6 +68,14 @@ class Tet
             default:
                 return $result;
         }
+    }
+
+    function require($path):bool
+    {
+        $env = new File($path);
+        if(!$env->isExists()) throw new Exception("Required $path not found");
+        require($path);
+        return true;
     }
 
     public function setErrorHandler()

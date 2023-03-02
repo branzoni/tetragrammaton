@@ -10,7 +10,7 @@ class Socket
 	public int $port;
 	public int $timeout; // в миллисекундах
 	private $handle;
-	public bool $debug = false;
+	public bool $debug = true;
 
 	function open(): bool
 	{
@@ -19,6 +19,8 @@ class Socket
 		if (!$this->timeout) $this->exception("timeout not set");		
 	
 		$this->handle = fsockopen($this->hostname, $this->port, $errno, $errstr, $this->timeout / 1000);		
+		echo $errno;
+		echo $errstr;
 		if (!$this->handle) return false;
 		socket_set_timeout($this->handle, 0, $this->timeout * 1000);		
 		return boolval($this->handle);
@@ -31,7 +33,7 @@ class Socket
 
 	private function echo(string $message)
 	{
-		echo Date('d-m-Y h:i:s') . "$message<br>";
+		echo Date('d-m-Y h:i:s') . "$message\r\n";
 	}
 
 	function isOpened():bool
@@ -55,7 +57,7 @@ class Socket
 			$data .= $buffer;
 		}
 
-		if ($this->debug) $this->echo(" - READ: $data<br>");
+		if ($this->debug) $this->echo(" - READ: $data\r\n");
 		return $data;
 	}
 

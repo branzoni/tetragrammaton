@@ -1,32 +1,24 @@
 <?php
 
-namespace Tet\Database\MySQL;
+namespace Tet\Database;
 
 use Tet\Common\CodeGenerator;
 use Tet\Filesystem\Filesystem;
-use Tet\Database\MySQL\Table;
+use Tet\Database\Table;
+use Tet\Database\ColumnDef;
+use Tet\Database\TableCollection;
 
-class DbScheme
+class DatabaseScheme
 {
-    private Database $db;
-
-    function __construct(Database $db)
+    function createCode($structure, $destination = "./", $namespace = ""): bool
     {
-        $this->db = $db;
-    }
+        $dbname = $structure["name"];
+        $tables = $structure["tables"];
 
-    function saveAsClass($destination = "./", $namespace = ""): bool
-    {
-
-        $dbname =  $this->db->getName();
-        $tables = $this->db->getTables();
+        $this->createDirectoryStructure("$destination", "$dbname");
 
         if ($namespace != "") $namespace = $namespace . "\\";
-
-        (new Filesystem)->createDirectory("$destination/$dbname");
-        (new Filesystem)->createDirectory("$destination/$dbname/Tables");
-        (new Filesystem)->createDirectory("$destination/$dbname/RowCollections");
-
+        
         $this->createDatabaseClass($destination, $namespace, $dbname, $tables);
 
         $tables->forEach(function ($tablename, Table $table) use ($destination, $namespace, $dbname) {
@@ -36,20 +28,15 @@ class DbScheme
             return true;
         });
 
-
         return true;
     }
 
-    function toArray(): array
+    private function createDirectoryStructure(string $destination, string $dbname):bool
     {
-        $tables = $this->db->getTables();
-
-        $result = [];
-        $tables->forEach(function ($key, Table $table) use (&$result) {
-            $result[$key] = $table->getFields()->getKeys();
-        });
-
-        return $result;
+        (new Filesystem)->createDirectory("$destination/$dbname");
+        (new Filesystem)->createDirectory("$destination/$dbname/Tables");
+        (new Filesystem)->createDirectory("$destination/$dbname/RowCollections");
+        return true;
     }
 
     private function createDatabaseClass(string $destination, $namespace, string $dbname, TableCollection $tables): bool
@@ -98,16 +85,16 @@ class DbScheme
         $cg->line("");
         $cg->line("class {$tablename}");
         $cg->line("{");
-        $table->getFields()->forEach(function ($fieldname, FieldDef $field) use ($cg) {
-            $propName  = str_replace('-', "_tet_minus_", $field->name);
+        $table->getColumnsInfo()->forEach(function ($columnname, ColumnDef $column) use ($cg) {
+            $propName  = str_replace('-', "_tet_minus_", $column->getName());
             $cg->line("public \$$propName;", 1);
         });
 
         $cg->line("");
         $cg->line("function __construct(\$row)", 1);
         $cg->line("{", 1);
-        $cg->line("foreach (\$row as \$field_name => \$field_value) {", 2);
-        $cg->line("\$this->\$field_name = \$field_value;", 3);
+        $cg->line("foreach (\$row as \$column_name => \$column_value) {", 2);
+        $cg->line("\$this->\$column_name = \$column_value;", 3);
         $cg->line("}", 2);
         $cg->line("}", 1);
 
@@ -122,13 +109,12 @@ class DbScheme
 
         $cg = new CodeGenerator();
         $cg->open("$destination/$dbname/RowCollections/$tablename.php");
-
         $cg->startTag();
         $cg->line("");
         $cg->line("namespace $namespace$dbname\RowCollections;");
         $cg->line("");
         $cg->line("use Tet\Common\CollectionReadOnly;");
-        $cg->line("use {$namespace}snab_market_new\Rows\\$tablename as {$tablename}_row;");
+        $cg->line("use {$namespace}$dbname\Rows\\$tablename as {$tablename}_row;");
         $cg->line("");
 
         $cg->line("class $tablename extends CollectionReadOnly");
@@ -156,8 +142,8 @@ class DbScheme
         $cg->line("");
         $cg->line("use Tet\Database\TableEntity;");
         $cg->line("use Tet\Database\MySQL;");
-        $cg->line("use {$namespace}snab_market_new\Rows\\$tablename as {$tablename}_row;");
-        $cg->line("use {$namespace}snab_market_new\RowCollections\\$tablename as {$tablename}_row_collection;");
+        $cg->line("use {$namespace}$dbname\Rows\\$tablename as {$tablename}_row;");
+        $cg->line("use {$namespace}$dbname\RowCollections\\$tablename as {$tablename}_row_collection;");
 
 
         $cg->line("");
@@ -168,15 +154,15 @@ class DbScheme
         $cg->line("");
         $cg->line("const TABLE_NAME = '{$tablename}';", 1);
 
-        $table_field_list = $table->getFields()->toArray();
+        $table_column_list = $table->getColumnsInfo()->toArray();
 
-        $table->getFields()->forEach(function ($fieldname, FieldDef $field) use ($cg) {
-            $propName  = "COLNAME_" . str_replace('-', "_TET_MINUS_", $field->name);
+        $table->getColumnsInfo()->forEach(function ($columnname, ColumnDef $column) use ($cg) {
+            $propName  = "COLNAME_" . str_replace('-', "_TET_MINUS_", $column->getName());
             $propName = strtoupper($propName);
-            $cg->line("const {$propName} = '{$field->name}';", 1);
+            $cg->line("const {$propName} = '{$column->getName()}';", 1);
         });
 
-        foreach ($table_field_list as $value) {
+        foreach ($table_column_list as $value) {
         }
         $cg->line("");
         $cg->line("function __construct(MySQL \$mySQL)", 1);

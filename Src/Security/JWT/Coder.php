@@ -38,11 +38,11 @@ class Coder
 
     private function encodeBase64Url(string $string): string
     {
-        return str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($string));
+        return str_replace(["+", "/", "="], ["-", "_", ""], base64_encode($string));
     }
 
     private function decodeBase64Url(string $string): string
     {
-        return base64_decode(str_replace(['-', '_'], ['+', '/'], $string));
+        return base64_decode(str_replace(["-", "_"], ["+", "/"], $string));
     }
 }

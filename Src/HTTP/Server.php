@@ -2,8 +2,6 @@
 
 namespace Tet\HTTP;
 
-use JetBrains\PhpStorm\NoReturn;
-
 class Server
 {
     public function getRequest(): ServerRequest
@@ -13,7 +11,7 @@ class Server
 
     public function getIP(): string
     {
-        return $_SERVER['SERVER_ADDR'];
+        return $_SERVER["SERVER_ADDR"];
     }
     public function getProtocol(): string
     {
@@ -45,14 +43,14 @@ class Server
 
     public function getRoot($local = true): string
     {
-        $root = $_SERVER['DOCUMENT_ROOT'];
+        $root = $_SERVER["DOCUMENT_ROOT"];
         if ($local) return $root;
         return basename($root);
     }
 
     function getRequestedURI(): string
     {
-        return $_SERVER['REQUEST_URI'];
+        return $_SERVER["REQUEST_URI"];
     }
 
     function sendResponse(Response $response, bool $clean_buffer = false): bool
@@ -72,12 +70,12 @@ class Server
     }
 
     // отправить клиенту данные как файл на скачивание
-    function sendDataAsFile(string $filename, string $data): bool
+    function sendDataAsFile(string $filename, string $data, $type = "application/octet-stream"): bool
     {
         $response = new Response;
         $response->code = 200;
         $response->headers->setContentDescription('File Transfer');
-        $response->headers->setContentType('application/octet-stream');
+        $response->headers->setContentType($type);
         $response->headers->setContentDisposition('attachment; filename=' . $filename);
         $response->headers->setContentTransferEncoding('binary');
         $response->headers->setExpires('0');
