@@ -13,6 +13,8 @@ class TokenData
     public $token;
     public $login;
     public $password;
+    public $bearerHeader;
+    public $bearerPayload;
 }
 
 
@@ -38,6 +40,7 @@ class Auth
 
     public function createToken(array $payload): string
     {
+
         $token = new Token(["alg" => "HS256", "typ" => "JWT"], $payload);
         $coder = new Coder($this->tokenSecret);
         return $coder->encode($token);
@@ -55,7 +58,7 @@ class Auth
 
     function getTokenData(): ?TokenData
     {
-        $authHeader = (new ServerRequest)->getHeaders()->get("Authorization");        
+        $authHeader = (new ServerRequest)->getHeaders()->get("Authorization");
         if (!$authHeader) return null;
 
         $tmp = explode(" ", $authHeader);
@@ -66,11 +69,12 @@ class Auth
 
         $td = new TokenData;
         [$td->type, $td->token] = $tmp;
-        if($td->type == "Basic") $td = $this->decodeBasicToken($td);        
+        if ($td->type == "Basic") return $this->decodeBasicToken($td);
+        if ($td->type == "Bearer") return $this->decodeBearerToken($td);
         return $td;
     }
 
-    private function proccessBearerToken(string $token): bool
+    function proccessBearerToken(string $token): bool
     {
         $coder = new Coder($this->tokenSecret);
         if (!$coder->validate($token)) return false;
@@ -93,12 +97,22 @@ class Auth
         return true;
     }
 
-    function decodeBasicToken(TokenData $td):TokenData
+    function decodeBasicToken(TokenData $td): TokenData
     {
         $tmp = base64_decode($td->token);
         $tmp = explode(":", $tmp);
         if (count($tmp) != 2) return null;
-        [$td->login, $td->password]  = $tmp;        
+        [$td->login, $td->password]  = $tmp;
+        return $td;
+    }
+
+    function decodeBearerToken(TokenData $td): TokenData
+    {
+        $coder = new Coder($this->tokenSecret);
+        if (!$coder->validate($td->token)) return false;
+        $decodedToken = $coder->decode($td->token);
+        $td->bearerHeader = $decodedToken->header;
+        $td->bearerPayload = $decodedToken->payload;
         return $td;
     }
 }

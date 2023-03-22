@@ -15,6 +15,7 @@ class Coder
     {
         $header = $this->encodeBase64Url(json_encode($token->header));
         $payload = $this->encodeBase64Url(json_encode($token->payload));
+
         $signature = $this->encodeBase64Url(hash_hmac('sha256', $header . "." . $payload, $this->secret, true));
         return "$header.$payload.$signature";
     }

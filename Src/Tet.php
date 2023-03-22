@@ -45,6 +45,11 @@ class Tet
 
     private function executeRouteCallback(Route $route): ?Response
     {
+
+
+
+
+
         // вызываем колбек        
         switch (gettype($route->callback)) {
             case 'object':
@@ -63,17 +68,27 @@ class Tet
                 $response = new Response;
                 $response->body = $result;
                 $response->code = 200;
+
+                $response->headers->set('Access-Control-Allow-Origin', '*');
+                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
+                $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Methods, Access-Control-Request-Headers');
+
+
                 return $response;
                 break;
             default:
+                $result->headers->set('Access-Control-Allow-Origin', '*');
+                $result->headers->set('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
+                $result->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Methods, Access-Control-Request-Headers');
+
                 return $result;
         }
     }
 
-    function require($path):bool
+    function require($path): bool
     {
         $env = new File($path);
-        if(!$env->isExists()) throw new Exception("Required $path not found");
+        if (!$env->isExists()) throw new Exception("Required $path not found");
         require($path);
         return true;
     }
@@ -114,7 +129,7 @@ class Tet
             "4" => "Parse",
             "8" => "Notice"
         ];
-              
+
         $this->fasade()->log()->add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
         $this->fasade()->server()->sendResponse(new Response(json_encode($tmp), 200));
     }

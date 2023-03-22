@@ -48,9 +48,15 @@ class Router
         return $this->addRoute(new Route("put", $path, $calback, $default));
     }
 
-    function option(string $path, $calback, $default = false): Router
+    function delete(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("option", $path, $calback, $default));
+        return $this->addRoute(new Route("delete", $path, $calback, $default));
+    }
+
+
+    function options(string $path, $calback, $default = false): Router
+    {
+        return $this->addRoute(new Route("options", $path, $calback, $default));
     }
 
     function getMatchedRoute(): ?Route
@@ -58,11 +64,24 @@ class Router
         if (!$this->routes) throw new Exception("no router init");
         if ($this->count == 0) throw new Exception("no router setted");
 
+
+
         $requestMethod = strtolower((new Server)->getRequest()->getMethod());
 
+        if ($requestMethod == "options") {
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization, Access-Control-Allow-Methods, Access-Control-Request-Headers');
+            echo " ";
+            exit;
+        }
+
+
+
         foreach ($this->routes as $route) {
-            // простое совпадение            
+            // простое совпадение                      
             if ($route->method != "any" && $requestMethod <> $route->method) continue;
+
             if ($route->isRequested($this->root)) return $route;
         }
 
@@ -74,8 +93,8 @@ class Router
         if (!$this->routes) throw new Exception("no router init");
         if ($this->count == 0) throw new Exception("no router setted");
 
-        foreach ($this->routes as $route) {            
-            if($route->default) return $route;                     
+        foreach ($this->routes as $route) {
+            if ($route->default) return $route;
         }
 
         return null;
@@ -102,16 +121,16 @@ class Router
     function redirect(string $url): bool
     {
         $location = $url;
-       
+
         $path = new Path($location);
         if ($path->isLocal()) {
             $location = realpath($this->root) . $location;
-            $location = str_replace("//", "/", $location);        
+            $location = str_replace("//", "/", $location);
             $location = (new Server)->getProtocol() . "://" . (new Path($location))->getRemotePath();
         }
 
         header("Location: $location");
-        
+
         return true;
     }
 }
