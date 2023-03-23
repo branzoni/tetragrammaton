@@ -55,15 +55,15 @@ class Server
 
     function sendResponse(Response $response, bool $clean_buffer = false): bool
     {
-        if ($clean_buffer && ob_get_level())  ob_end_clean();        
-        
-        http_response_code($response->code);
-        
-        foreach ($response->headers->toArray() as $key => $header) {
-           header("$key:$header");
-        }        
+        if ($clean_buffer && ob_get_level())  ob_end_clean();
 
-        if($response->code <>200) return true;
+        http_response_code($response->code);
+
+        foreach ($response->headers->toArray() as $key => $header) {
+            header("$key:$header");
+        }
+
+        if ($response->code <> 200) return true;
         echo $response->body;
 
         return true;

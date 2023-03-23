@@ -3,97 +3,97 @@
 namespace Tet;
 
 use Exception;
-use Tet\Common\Fasade;
+use \Throwable;
+use \stdClass;
+
 use Tet\HTTP\Response;
 use Tet\HTTP\Server;
 use Tet\Routing\Router;
-use Tet\Routing\Route;
-use \Throwable;
-use \stdClass;
 use Tet\Filesystem\File;
+
+use Tet\HTTP\Client;
+use Tet\Mail\Mailer;
+use Tet\Database\MySQL;
+use Tet\Filesystem\Filesystem;
+use Tet\Security\Auth;
+
+use Tet\Common\Collection;
+use Tet\Common\Log;
+use Tet\Common\Utils;
+
 
 class Tet
 {
     private Router $router;
-    private Fasade $fasade;
+    protected Collection $params;
+    protected MySQL $mySQL;
+    protected Auth $auth;
+    protected Log $log;
+    protected Mailer $mailer;
 
-    function router($root): Router
+    public string $AccessControlAllowOrigin;
+    public string $AccessControlAllowMethods;
+    public string $AccessControlAllowHeaders;
+
+    public function auth(): Auth
     {
-        return $this->router ?? $this->router = new Router($root);
+        return $this->auth ?? $this->auth = new Auth;
     }
 
-    function fasade(): Fasade
+    public function log(): Log
     {
-        return $this->fasade ?? $this->fasade = new Fasade;
+        return $this->log ?? $this->log = new Log;
     }
 
-    function run(): bool
+    public function params(): Collection
     {
-        $route = $this->router->getMatchedRoute();
-
-        if ($route) {
-            $response = $this->executeRouteCallback($route);
-            if (!$response) return true;
-            return (new Server)->sendResponse($response);
-        } else {
-            $route = $this->router->getDefaultRoute();
-            if ($route) return $this->router->redirect($route->uri);
-        }
-
-        return (new Server)->sendResponse(new Response(null, 404));
+        return $this->params ??  $this->params = new Collection;
     }
 
-    private function executeRouteCallback(Route $route): ?Response
+    public function mySQL(): MySQL
     {
-
-
-
-
-
-        // вызываем колбек        
-        switch (gettype($route->callback)) {
-            case 'object':
-            case 'array':
-                $result = call_user_func_array($route->callback, array($this->fasade(), $route));
-                break;
-            default:
-                $result = $route->callback;
-        };
-
-        if (!$result) return null;
-
-        // отдаем респонс
-        switch (gettype($result)) {
-            case 'string':
-                $response = new Response;
-                $response->body = $result;
-                $response->code = 200;
-
-                $response->headers->set('Access-Control-Allow-Origin', '*');
-                $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
-                $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Methods, Access-Control-Request-Headers');
-
-
-                return $response;
-                break;
-            default:
-                $result->headers->set('Access-Control-Allow-Origin', '*');
-                $result->headers->set('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS');
-                $result->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Access-Control-Allow-Methods, Access-Control-Request-Headers');
-
-                return $result;
-        }
+        return $this->mySQL ?? $this->mySQL = new MySQL;
     }
 
-    function require($path): bool
+    public function filesystem(): Filesystem
     {
-        $env = new File($path);
-        if (!$env->isExists()) throw new Exception("Required $path not found");
+        return new Filesystem;
+    }
+
+    public function server(): Server
+    {
+        return new Server;
+    }
+
+    public function client(): Client
+    {
+        return new Client;
+    }
+
+    public function utils(): Utils
+    {
+        return new Utils;
+    }
+
+    public function mailer(): Mailer
+    {
+        return $this->mailer ?? $this->mailer = new Mailer;
+    }
+
+    function router(): Router
+    {
+        return $this->router ?? $this->router = new Router();
+    }
+
+    function _require($path): bool
+    {
+        $file = new File($path);
+        if (!$file->isExists()) throw new Exception("Required $path not found");
         require($path);
         return true;
     }
 
-    public function setErrorHandler()
+    public function _setErrorHandler()
     {
         set_error_handler(function ($code, $message, $file, $line) {
             $this->error_callback($code, $message, $file, $line);
@@ -101,7 +101,7 @@ class Tet
         });
     }
 
-    public function setExeptionHandler()
+    public function _setExeptionHandler()
     {
         set_exception_handler(function (Throwable $e) {
             $this->error_callback($e->getCode(),  $e->getMessage(), $e->getFile(), $e->getLine());
@@ -130,7 +130,39 @@ class Tet
             "8" => "Notice"
         ];
 
-        $this->fasade()->log()->add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
-        $this->fasade()->server()->sendResponse(new Response(json_encode($tmp), 200));
+        $this->log()->add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
+        return $this->sendResponse(new Response(json_encode($tmp), 200));
+    }
+
+    function _run(): bool
+    {
+        // сначала отрабатываем возможный запрос OPTIONS
+        if (strtolower($this->server()->getRequest()->getMethod()) == "options") {
+            return $this->sendResponse(new Response(" ", 200));
+        }
+
+        // попытка штатно отработать роутинг
+        $route = $this->router->getCurrentRoute();
+
+        if ($route) {
+            $response = $route->getResponse();
+            if (!$response) return true;
+            return $this->sendResponse($response);
+        }
+
+        // попытка отработать дефолтный роут, если он был указан
+        $route = $this->router->getDefaultRoute();
+        if ($route) return $this->router->redirect($route->uri);
+
+        // возврат ответа 404
+        return $this->sendResponse(new Response(null, 404));
+    }
+
+    private function sendResponse(Response $response): bool
+    {
+        $response->headers->set('Access-Control-Allow-Origin', $this->AccessControlAllowOrigin);
+        $response->headers->set('Access-Control-Allow-Methods', $this->AccessControlAllowMethods);
+        $response->headers->set('Access-Control-Allow-Headers', $this->AccessControlAllowHeaders);
+        return $this->server()->sendResponse($response);
     }
 }

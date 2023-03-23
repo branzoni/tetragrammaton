@@ -4,6 +4,7 @@ namespace Tet\Routing;
 
 use Tet\Filesystem\Path;
 use Tet\HTTP\Server;
+use Tet\HTTP\Response;
 
 class Route
 {
@@ -26,22 +27,23 @@ class Route
     }
 
     function isRequested($root): bool
-    {     
+    {
         $route = (new Path($root))->getRelativePath() . $this->uri;
-        $route = str_replace("//","/",$route);
+        $route = str_replace("//", "/", $route);
         $requested = (new Server)->getRequestedURI();
         $requested = explode("?", $requested)[0];
-        //echo "$route - $requested<br>";
+
+        if (substr($requested, -1) == "/" && substr($route, -1) != "/") $route = "$route/";
+
+        //echo "$route - $requested\r\n";
         if ($route  == $requested) return true;
 
-        $path1 = new Path($route);        
+        $path1 = new Path($route);
         $path2 = new Path($requested);
 
-        //echo "$path1 - $path2<br>";
+        //echo "$path1 - $path2\r\n";
         if ($path1->getSegmentCount() != $path2->getSegmentCount()) return false;
 
-
-        //$args = [];
         $count = $path1->getSegmentCount();
         $path_1_segments = $path1->getSegments();
         $path_2_segments = $path2->getSegments();
@@ -56,7 +58,12 @@ class Route
         return true;
     }
 
-    function getArguments(): ?array
+    function getVariable(string $varname)
+    {
+        return $this->getVariables()[$varname] ?? null;
+    }
+
+    function getVariables(): ?array
     {
         if (!$this->hasVariables()) return null;
 
@@ -105,5 +112,31 @@ class Route
     private function getVarialbeName(string $segment)
     {
         return str_replace(["{", "}"], "", $segment);
+    }
+
+    function getResponse(): ?Response
+    {
+        // вызываем колбек        
+        switch (gettype($this->callback)) {
+            case 'object':
+            case 'array':
+                $result = call_user_func($this->callback);
+                break;
+            default:
+                $result = $this->callback;
+        };
+
+        if (!$result) return null;
+
+        // отдаем респонс
+        switch (gettype($result)) {
+            case 'string':
+                $response = new Response($result, 200);
+                break;
+            default:
+                $response = $result;
+        }
+
+        return $response;
     }
 }

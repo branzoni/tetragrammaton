@@ -15,17 +15,26 @@ class Router
     public ArrayObject $routes;
     public int $count = 0;
     public string $root;
+    protected Route $curRoute;
 
-    function __construct($root)
+    function setRoot(string $root)
     {
-        $this->routes = new Routes;
         $this->root = $root;
     }
 
+    function getRoutes()
+    {
+        return $this->routes ?? $this->routes = new Routes;
+    }
+
+    function getCurrentRoute(): ?Route
+    {
+        return $this->curRoute ?? $this->getMatchedRoute();
+    }
 
     function arr(Route ...$router)
     {
-        array_merge($this->routes, $router);
+        array_merge($this->getRoutes(), $router);
     }
 
     function any(string $path, $calback, $default = false): Router
@@ -61,28 +70,16 @@ class Router
 
     function getMatchedRoute(): ?Route
     {
-        if (!$this->routes) throw new Exception("no router init");
+        $routes = $this->getRoutes();
+        if (!$routes) throw new Exception("no router init");
         if ($this->count == 0) throw new Exception("no router setted");
-
-
 
         $requestMethod = strtolower((new Server)->getRequest()->getMethod());
 
-        if ($requestMethod == "options") {
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-            header('Access-Control-Allow-Headers: Content-Type, Authorization, Access-Control-Allow-Methods, Access-Control-Request-Headers');
-            echo " ";
-            exit;
-        }
-
-
-
-        foreach ($this->routes as $route) {
+        foreach ($routes as $route) {
             // простое совпадение                      
             if ($route->method != "any" && $requestMethod <> $route->method) continue;
-
-            if ($route->isRequested($this->root)) return $route;
+            if ($route->isRequested($this->root)) return $this->curRoute = $route;
         }
 
         return null;
@@ -90,11 +87,12 @@ class Router
 
     function getDefaultRoute(): ?Route
     {
-        if (!$this->routes) throw new Exception("no router init");
+        $routes = $this->getRoutes();
+        if (!$routes) throw new Exception("no router init");
         if ($this->count == 0) throw new Exception("no router setted");
 
-        foreach ($this->routes as $route) {
-            if ($route->default) return $route;
+        foreach ($routes as $route) {
+            if ($route->default) return  $this->curRoute = $route;
         }
 
         return null;
@@ -102,8 +100,9 @@ class Router
 
     function createHTML($destination = "router.html")
     {
+        $routes = $this->getRoutes();
         $html = "<title>Router</title>";
-        foreach ($this->routes as $key => $route) {
+        foreach ($routes as $key => $route) {
             $html .= "<a href=\".$route->uri\">$key. $route->uri</a><br>\r\n";
         }
         (new Filesystem)->createFile($destination, $html);
@@ -112,8 +111,9 @@ class Router
 
     private function addRoute(Route $route): Router
     {
-        $this->routes[] = $route;
-        $this->count = count($this->routes);
+        $routes = $this->getRoutes();
+        $routes[] = $route;
+        $this->count = count($routes);
         //return $route;
         return $this;
     }
