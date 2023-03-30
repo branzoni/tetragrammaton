@@ -10,6 +10,8 @@ use \Exception;
 use Tet\Filesystem\Path;
 use Tet\HTTP\Server;
 
+use Tet\HTTP\Response;
+
 class Router
 {
     public ArrayObject $routes;

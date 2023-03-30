@@ -63,7 +63,7 @@ class Server
             header("$key:$header");
         }
 
-        if ($response->code <> 200) return true;
+        //if ($response->code <> 200) return true;
         echo $response->body;
 
         return true;

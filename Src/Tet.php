@@ -123,7 +123,7 @@ class Tet
 
 
         $levels = [
-            "0" => "qqq",
+            "0" => "Undefined",
             "1" => "Error",
             "2" => "Warning",
             "4" => "Parse",
@@ -131,24 +131,17 @@ class Tet
         ];
 
         $this->log()->add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
-        return $this->sendResponse(new Response(json_encode($tmp), 200));
+        return $this->sendResponse(new Response(json_encode($tmp), 500));
     }
 
     function _run(): bool
     {
         // сначала отрабатываем возможный запрос OPTIONS
-        if (strtolower($this->server()->getRequest()->getMethod()) == "options") {
-            return $this->sendResponse(new Response(" ", 200));
-        }
+        if ($this->server()->getRequest()->isOptions()) return $this->sendResponse(new Response(" ", 200));
 
         // попытка штатно отработать роутинг
         $route = $this->router->getCurrentRoute();
-
-        if ($route) {
-            $response = $route->getResponse();
-            if (!$response) return true;
-            return $this->sendResponse($response);
-        }
+        if ($route) return $this->sendResponse($route->getResponse());
 
         // попытка отработать дефолтный роут, если он был указан
         $route = $this->router->getDefaultRoute();
