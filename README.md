@@ -50,7 +50,7 @@
             self::tet()->log()->error("Что-то пошло нет так");
 
             // выполнение запроса
-            $result =self::tet()->mySQL()->execute("SELECT * FROM mytable");
+            $result = self::tet()->mySQL()->execute("SELECT * FROM mytable");
 
             // получение файла
             $myfile = self::tet()->filesystem()->getFile($pathToMyFile);
