@@ -1,30 +1,63 @@
 # tet
 
-tet - простая библиотека, реализующая минимально необходимый функционал для комфортного создания простых php-приложений.
+---
 
+## Описание
+Простая библиотека, реализующая минимально необходимый функционал для комфортного создания простых php-приложений.
 
-возможности:
-- серверный функционал (обработка запросов и формировние ответов)
-- клиентский функционал (отправка htttp-запросов и прием ответов)
-- работа с файловой системой (файлы, папки, пути)
-- работа с базой данных (MySQL)
-особенности:
-- весь функционал реализуется через объектную модель
-- все
+## Установка
 
-структура объектной модели:
-tet
--params
--server
---request
---response
--client
---request
---response
--filesystem
--mysql
---query
---table
----row
+```bash
+    composer require branzoni/tet
+```
 
+## Объявление
 
+```php
+    use Tet\Tet;
+
+    $tet = new Tet;
+
+    $router = $tet->router();
+    $router->setRoot("/");
+    $router->get("/", function () {
+        return "Hello!";
+    });
+
+    $router->get("/foo/bar", function () {
+        return Foo::bar();
+    });
+
+    $tet->_run();
+
+```
+
+## Использование в классах
+
+```php
+    use Tet\Traits\Tet;
+
+    class Foo{
+
+        use Tet;
+
+        static function bar()
+        {
+            // получение данных запрос
+            $request = self::tet()->server()->getRequest();
+
+            // запись в лог
+            self::tet()->log()->error("Что-то пошло нет так");
+
+            // выполнение запроса
+            $result =self::tet()->mySQL()->execute("SELECT * FROM mytable");
+
+            // получение файла
+            $myfile = self::tet()->filesystem()->getFile($pathToMyFile);
+
+            return new Response("", 200);
+
+        }
+    }
+
+```
