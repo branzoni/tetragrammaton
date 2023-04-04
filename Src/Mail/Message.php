@@ -17,7 +17,7 @@ class Message
 
     const EOL = "\n";
 
-    function output()
+    public function output()
     {
         return $this->getHeader() . $this->getBody();
     }
@@ -38,7 +38,7 @@ class Message
 
         if (!$this->reply_to) $header .= 'Reply-To: =?UTF-8?B?' . base64_encode($this->sender) . '?= <' . $this->from . '>' . $this::EOL;
         else $header .= 'Reply-To: =?UTF-8?B?' . base64_encode($this->reply_to) . '?= <' . $this->reply_to . '>' . $this::EOL;
-        
+
         $header .= 'Return-Path: ' . $this->from . $this::EOL;
         $header .= 'X-Mailer: PHP/' . phpversion() . $this::EOL;
         $header .= 'Content-Type: multipart/mixed; boundary="' . $this->getBoundary() . '"' . $this::EOL . $this::EOL;
@@ -49,19 +49,17 @@ class Message
     private function getBody()
     {
         if (!$this->html) $body = $this->getBodyAsHTML();
-        else $body = $this->getBodyAsPlainText();       
+        else $body = $this->getBodyAsPlainText();
 
         foreach ($this->attachments as $attachment) {
-            if (file_exists($attachment)) {
-                $body = $this->addAttachment($body, $attachment);                
-            }
+            if (file_exists($attachment)) $body = $this->addAttachment($body, $attachment);
         }
 
         $body .= '--' . $this->getBoundary() . '--' . $this::EOL;
         return $body;
     }
 
-    function getBodyAsHTML()
+    private function getBodyAsHTML()
     {
         $body = '--' . $this->getBoundary() . $this::EOL;
         $body .= 'Content-Type: text/plain; charset="utf-8"' . $this::EOL;
@@ -70,7 +68,7 @@ class Message
         return $body;
     }
 
-    function getBodyAsPlainText()
+    private function getBodyAsPlainText()
     {
         $body = '--' . $this->getBoundary() . $this::EOL;
         $body .= 'Content-Type: multipart/alternative; boundary="' . $this->getBoundary() . '_alt"' . $this::EOL . $this::EOL;
@@ -87,7 +85,7 @@ class Message
         return $body;
     }
 
-    function addAttachment($body, $attachment)
+    private function addAttachment($body, $attachment)
     {
         $content = $this->getAttachmentContent($attachment);
         $body .= '--' . $this->getBoundary() . $this::EOL;

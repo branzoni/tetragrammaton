@@ -18,12 +18,12 @@ class SMTP
 		return $this->socket->open();
 	}
 
-	function sendCommand(string $commad):?string
+	function sendCommand(string $commad): ?string
 	{
 		return $this->socket->writeAndRead("$commad\r\n");
 	}
 
-	function sendHELO(string$serverName):?string
+	function sendHELO(string $serverName): ?string
 	{
 		return $this->sendCommand("EHLO $serverName");
 	}
@@ -34,7 +34,7 @@ class SMTP
 		$this->socket->enableCrypto();
 	}
 
-	function sendAUTHLOGIN():string
+	function sendAUTHLOGIN(): string
 	{
 		return $this->sendCommand("AUTH LOGIN");
 	}
@@ -66,11 +66,8 @@ class SMTP
 		foreach ($lines as $line) {
 			$results = str_split($line, $length);
 			foreach ($results as $result) {
-				if (substr(PHP_OS, 0, 3) != 'WIN') {
-					$this->socket->writeAndRead($result . "\r\n");
-				} else {
-					$this->socket->writeAndRead(str_replace("\n", "\r\n", $result) . "\r\n");
-				}
+				if (substr(PHP_OS, 0, 3) != 'WIN') $this->socket->writeAndRead($result . "\r\n");
+				else $this->socket->writeAndRead(str_replace("\n", "\r\n", $result) . "\r\n");
 			}
 		}
 

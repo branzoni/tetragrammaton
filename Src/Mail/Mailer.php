@@ -1,14 +1,14 @@
 <?php
 
 namespace Tet\Mail;
+
 use Tet\Mail\Message;
 
 class Mailer
 {
-	public string $hostname;
-	public int $port;
-	public int $timeout; // в миллисекундах
-
+	public string $smtpHostname;
+	public int $smtpPort;
+	public int $smtpTimeout; // в миллисекундах
 	public string $smtpLogin;
 	public string $smtpPassword;
 
@@ -24,9 +24,10 @@ class Mailer
 	function send(): bool
 	{
 		$message = $this->createMessage();
-		$smtp = $this->createSMTP();
 
+		$smtp = $this->createSMTP();
 		if (!$smtp->connect()) return false;
+
 		$smtp->sendHELO("MyMail");
 		$smtp->sendSTARTTLS();
 		$smtp->sendHELO("MyMail");
@@ -42,7 +43,7 @@ class Mailer
 	}
 
 	private function createMessage(): Message
-	{		
+	{
 		$message = new Message;
 		$message->to = $this->messageTo;
 		$message->subject = $this->messageSubject;
@@ -55,12 +56,13 @@ class Mailer
 		return $message;
 	}
 
+
 	private function createSMTP(): SMTP
 	{
 		$smtp = new SMTP;
-		$smtp->hostname = $this->hostname;
-		$smtp->port = $this->port;
-		$smtp->timeout = $this->timeout;
+		$smtp->hostname = $this->smtpHostname;
+		$smtp->port = $this->smtpPort;
+		$smtp->timeout = $this->smtpTimeout;
 		return $smtp;
 	}
 }
