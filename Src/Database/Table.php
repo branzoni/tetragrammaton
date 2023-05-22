@@ -88,7 +88,7 @@ class Table
 
     function dropColumn(string $name): bool
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name DROP COLUMN $name;");
+        return $this->mySQL->execute("ALTER TABLE $this->name DROP COLUMN `$name`;");
     }
 
     function dropIndex(string $name): bool
@@ -133,7 +133,7 @@ class Table
 
     function setColumnDataType(string $name, string $type): bool
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name MODIFY COLUMN $name $type;");
+        return $this->mySQL->execute("ALTER TABLE $this->name MODIFY COLUMN `$name` $type;");
     }
 
     function setAutoincrimentValue($value = 1): bool

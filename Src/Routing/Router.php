@@ -70,6 +70,11 @@ class Router
         return $this->addRoute(new Route("options", $path, $calback, $default));
     }
 
+    function patch(string $path, $calback, $default = false): Router
+    {
+        return $this->addRoute(new Route("patch", $path, $calback, $default));
+    }
+
     function getMatchedRoute(): ?Route
     {
         $routes = $this->getRoutes();

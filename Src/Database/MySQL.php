@@ -16,7 +16,7 @@ class MySQL
     function open(string $hostname,  string $database, string $user, string $password, string $charset = "utf8"): bool
     {
         $this->connection = mysqli_connect($hostname, $user, $password, $database);
-        if (!$this->connection) return null;
+        if (!$this->connection) return false;
         $this->setCharset($charset);
 
         return boolval($this->connection);
@@ -27,8 +27,12 @@ class MySQL
         return mysqli_close($this->connection);
     }
 
+    /**
+     * @throws Exception
+     */
     function execute(string $query)
     {
+        //print_r($query . "\r\n");
         $result = mysqli_query($this->connection, $query);
         if ($result === false) throw new Exception($this->getError());
         if ($result === true) return true;
@@ -43,6 +47,11 @@ class MySQL
         $result =  $result[$index];
         $result = (object)  $result;
         return  $result;
+    }
+
+    function  getLastInsertId()
+    {
+        return mysqli_insert_id($this->connection);
     }
 
     function getError(): string
@@ -88,6 +97,15 @@ class MySQL
         $db = $this->createDatabase2($databaseDef->name);
         $db->createTablesFromSchema($databaseDef);
         $db->deleteOutSchemaTables($databaseDef);
+        return true;
+    }
+
+    function modifyDatabaseFromSchema(DatabaseDef $databaseDef): bool
+    {
+        // создаем структуру базы
+        $db = $this->createDatabase2($databaseDef->name);
+        $db->createTablesFromSchema($databaseDef);
+        //$db->deleteOutSchemaTables($databaseDef);
         return true;
     }
 

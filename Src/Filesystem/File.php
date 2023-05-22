@@ -16,7 +16,6 @@ class File extends Path
 
     function getContent()
     {
-
         return file_get_contents($this->path);
     }
 
