@@ -10,108 +10,108 @@ use Tet\Database\TypesDef;
 
 class MySQL
 {
-    public $name;
-    private \mysqli $connection;
+    public static $name;
+    private static \mysqli $connection;
 
-    function open(string $hostname,  string $database, string $user, string $password, string $charset = "utf8"): bool
+    static function open(string $hostname,  string $database, string $user, string $password, string $charset = "utf8"): bool
     {
-        $this->connection = mysqli_connect($hostname, $user, $password, $database);
-        if (!$this->connection) return false;
-        $this->setCharset($charset);
+        self::$connection = mysqli_connect($hostname, $user, $password, $database);
+        if (!self::$connection) return false;
+        self::setCharset($charset);
 
-        return boolval($this->connection);
+        return boolval(self::$connection);
     }
 
-    function close(): bool
+    static function close(): bool
     {
-        return mysqli_close($this->connection);
+        return mysqli_close(self::$connection);
     }
 
     /**
      * @throws Exception
      */
-    function execute(string $query)
+    static function execute(string $query)
     {
         //print_r($query . "\r\n");
-        $result = mysqli_query($this->connection, $query);
-        if ($result === false) throw new Exception($this->getError());
+        $result = mysqli_query(self::$connection, $query);
+        if ($result === false) throw new Exception(self::getError());
         if ($result === true) return true;
         return mysqli_fetch_all($result,  MYSQLI_ASSOC);
     }
 
 
-    function getRecord(string $query, int $index = 0): ?object
+    static function getRecord(string $query, int $index = 0): ?object
     {
-        $result = $this->execute($query);
+        $result = self::execute($query);
         if (!$result) return null;
         $result =  $result[$index];
         $result = (object)  $result;
         return  $result;
     }
 
-    function  getLastInsertId()
+    static function  getLastInsertId()
     {
-        return mysqli_insert_id($this->connection);
+        return mysqli_insert_id(self::$connection);
     }
 
-    function getError(): string
+    static function getError(): string
     {
-        return mysqli_error($this->connection);
+        return mysqli_error(self::$connection);
     }
 
-    function isConnected(): bool
+    static function isConnected(): bool
     {
-        return boolval($this->connection);
+        return boolval(self::$connection);
     }
 
-    function setCharset(string $charset = "utf8"): bool
+    static function setCharset(string $charset = "utf8"): bool
     {
-        return mysqli_set_charset($this->connection, $charset);
+        return mysqli_set_charset(self::$connection, $charset);
     }
 
-    function createDatabase(string $name): bool
+    static function createDatabase(string $name): bool
     {
-        return $this->execute("CREATE DATABASE IF NOT EXISTS $name");
+        return self::execute("CREATE DATABASE IF NOT EXISTS $name");
     }
 
-    function selectDatabase(string $database): bool
+    static function selectDatabase(string $database): bool
     {
-        return mysqli_select_db($this->connection, $database);
+        return mysqli_select_db(self::$connection, $database);
     }
 
-    function getCurrentDb(): Database
+    static function getCurrentDb(): Database
     {
-        return new Database($this);
+        return new Database(new self);
     }
 
-    function createDatabase2(string $name): Database
+    static function createDatabase2(string $name): Database
     {
-        $this->createDatabase($name);
-        $this->selectDatabase($name);
-        return $this->getCurrentDb();
+        self::createDatabase($name);
+        self::selectDatabase($name);
+        return self::getCurrentDb();
     }
 
-    function createDatabaseFromSchema(DatabaseDef $databaseDef): bool
+    static function createDatabaseFromSchema(DatabaseDef $databaseDef): bool
     {
         // создаем структуру базы        
-        $db = $this->createDatabase2($databaseDef->name);
+        $db = self::createDatabase2($databaseDef->name);
         $db->createTablesFromSchema($databaseDef);
         $db->deleteOutSchemaTables($databaseDef);
         return true;
     }
 
-    function modifyDatabaseFromSchema(DatabaseDef $databaseDef): bool
+    static function modifyDatabaseFromSchema(DatabaseDef $databaseDef): bool
     {
         // создаем структуру базы
-        $db = $this->createDatabase2($databaseDef->name);
+        $db = self::createDatabase2($databaseDef->name);
         $db->createTablesFromSchema($databaseDef);
         //$db->deleteOutSchemaTables($databaseDef);
         return true;
     }
 
-    function getQuery(): Query
+    static function getQuery(): Query
     {
-        return new  Query($this->connection);
+        return new  Query(self::$connection);
     }
 
     static function types(): TypesDef
@@ -119,13 +119,13 @@ class MySQL
         return  new TypesDef;
     }
 
-    function escapeString(string ...$strings)
+    static function escapeString(string ...$strings)
     {
-        if (count($strings) == 1) return $this->connection->escape_string($strings[0]);
+        if (count($strings) == 1) return self::$connection->escape_string($strings[0]);
 
         $results = [];
         foreach ($strings as $string) {
-            $results[] = $this->connection->escape_string($string);
+            $results[] = self::$connection->escape_string($string);
         }
 
         return $results;

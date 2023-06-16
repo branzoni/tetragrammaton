@@ -2,7 +2,8 @@
 
 namespace Tet;
 
-use Exception;
+use \Exception;
+use Tet\Common\Logger;
 use \Throwable;
 use \stdClass;
 
@@ -24,68 +25,58 @@ use Tet\Common\Utils;
 
 class Tet
 {
-    private Router $router;
-    protected Collection $params;
-    protected MySQL $mySQL;
-    protected Auth $auth;
-    protected Log $log;
-    protected Mailer $mailer;
+    public static string $AccessControlAllowOrigin;
+    public static string $AccessControlAllowMethods;
+    public static string $AccessControlAllowHeaders;
 
-    public string $AccessControlAllowOrigin;
-    public string $AccessControlAllowMethods;
-    public string $AccessControlAllowHeaders;
-
-    public function auth(): Auth
+    public static function router(): Router
     {
-        return $this->auth ?? $this->auth = new Auth;
+        return new Router();
     }
 
-    public function log(): Log
+    public static function logger(): Logger
     {
-        return $this->log ?? $this->log = new Log;
+        return new Logger;
     }
 
-    public function params(): Collection
-    {
-        return $this->params ??  $this->params = new Collection;
-    }
-
-    public function mySQL(): MySQL
-    {
-        return $this->mySQL ?? $this->mySQL = new MySQL;
-    }
-
-    public function filesystem(): Filesystem
-    {
-        return new Filesystem;
-    }
-
-    public function server(): Server
+    public static function server(): Server
     {
         return new Server;
     }
 
-    public function client(): Client
-    {
-        return new Client;
-    }
-
-    public function utils(): Utils
+    public static function utils(): Utils
     {
         return new Utils;
     }
 
-    public function mailer(): Mailer
+    public static function filesystem(): Filesystem
     {
-        return $this->mailer ?? $this->mailer = new Mailer;
+        return new Filesystem;
     }
 
-    function router(): Router
+    public static function auth(): Auth
     {
-        return $this->router ?? $this->router = new Router();
+        return new Auth;
     }
 
-    function _require($path): bool
+    public static function mailer(): Mailer
+    {
+        return new Mailer;
+    }
+
+    public static function mySQL(): MySQL
+    {
+        return new MySQL;
+    }
+
+    public static function client(): Client
+    {
+        return new Client;
+    }
+
+    //----- КОНЕЦ СТАТИКИ -------
+
+    public static function _require($path): bool
     {
         $file = new File($path);
         if (!$file->isExists()) throw new Exception("Required $path not found");
@@ -93,33 +84,31 @@ class Tet
         return true;
     }
 
-    public function _setErrorHandler()
+    public static function _setErrorHandler()
     {
         set_error_handler(function ($code, $message, $file, $line) {
-            $this->error_callback($code, $message, $file, $line);
+            self::error_callback($code, $message, $file, $line);
             exit;
         });
     }
 
-    public function _setExeptionHandler()
+    public static function _setExeptionHandler()
     {
         set_exception_handler(function (Throwable $e) {
-            $this->error_callback($e->getCode(),  $e->getMessage(), $e->getFile(), $e->getLine());
+            self::error_callback($e->getCode(), $e->getMessage(), $e->getFile(), $e->getLine());
         });
     }
 
-    private function error_callback($code, $message, $file, $line)
+    private static function error_callback($code, $message, $file, $line)
     {
         $tmp = new stdClass;
         $tmp->message = $message;
         $tmp->code = $code;
         $tmp->file = $file;
         $tmp->line = $line;
-
-        $srv = new Server;
-        $tmp->request = $srv->getRequest();
-        $tmp->url = $srv->getRequest()->getURI();
-        $tmp->method = $srv->getRequest()->getMethod();
+        $tmp->request = self::server()::getRequest();
+        $tmp->url = $tmp->request->getURI();
+        $tmp->method = $tmp->request->getMethod();
 
 
         $levels = [
@@ -130,32 +119,32 @@ class Tet
             "8" => "Notice"
         ];
 
-        $this->log()->add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
-        return $this->sendResponse(new Response(json_encode($tmp), 500));
+        self::logger()::add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
+        return self::sendResponse(new Response(json_encode($tmp), 500));
     }
 
-    function _run(): bool
+    public static function _run(): bool
     {
         // сначала отрабатываем возможный запрос OPTIONS
-        if ($this->server()->getRequest()->isOptions()) return $this->sendResponse(new Response(" ", 200));
+        if (self::server()::getRequest()->isOptions()) return self::sendResponse(new Response(" ", 200));
 
         // попытка штатно отработать роутинг
-        $route = $this->router->getCurrentRoute();
-        if ($route) return $this->sendResponse($route->getResponse());
+        $route = self::router()::getCurrentRoute();
+        if ($route) return self::sendResponse($route->getResponse());
 
         // попытка отработать дефолтный роут, если он был указан
-        $route = $this->router->getDefaultRoute();
-        if ($route) return $this->router->redirect($route->uri);
+        $route = self::router()::getDefaultRoute();
+        if ($route) return self::router()::redirect($route->uri);
 
         // возврат ответа 404
-        return $this->sendResponse(new Response(null, 404));
+        return self::sendResponse(new Response(null, 404));
     }
 
-    private function sendResponse(Response $response): bool
+    private static function sendResponse(Response $response): bool
     {
-        $response->headers->set('Access-Control-Allow-Origin', $this->AccessControlAllowOrigin);
-        $response->headers->set('Access-Control-Allow-Methods', $this->AccessControlAllowMethods);
-        $response->headers->set('Access-Control-Allow-Headers', $this->AccessControlAllowHeaders);
-        return $this->server()->sendResponse($response);
+        $response->headers->set('Access-Control-Allow-Origin', self::$AccessControlAllowOrigin);
+        $response->headers->set('Access-Control-Allow-Methods', self::$AccessControlAllowMethods);
+        $response->headers->set('Access-Control-Allow-Headers', self::$AccessControlAllowHeaders);
+        return self::server()::sendResponse($response);
     }
 }

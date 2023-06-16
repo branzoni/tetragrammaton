@@ -6,57 +6,45 @@ use Tet\HTTP\ServerRequest;
 use Tet\Security\JWT\Coder;
 use Tet\Security\JWT\Token;
 
-
-class TokenData
-{
-    public string $type;
-    public $token;
-    public $login;
-    public $password;
-    public $bearerHeader;
-    public $bearerPayload;
-}
-
-
 class Auth
 {
-    private string $tokenSecret;
+    private static string $tokenSecret;
 
-    public function check($callback = null, string $type = "Bearer"): bool
+    public static function check($callback = null, string $type = "Bearer"): bool
     {
-        $tokenData = $this->getTokenData();
+        $tokenData = self::getTokenData();
         if (!$tokenData) return false;
         if ($tokenData->type != $type) return false;
-        if ($this->isBasic($tokenData)) return $this->proccessBasicToken($tokenData->token, $callback);
-        if ($this->isBearer($tokenData)) return $this->proccessBearerToken($tokenData->token);
+        if (self::isBasic($tokenData)) return self::proccessBasicToken($tokenData->token, $callback);
+        if (self::isBearer($tokenData)) return self::proccessBearerToken($tokenData->token);
         return true;
     }
 
-    public function setTokenSecret(string $secret = ""): bool
+    public static function setTokenSecret(string $secret = ""): bool
     {
-        $this->tokenSecret = $secret;
+        self::$tokenSecret = $secret;
         return true;
     }
 
-    public function createToken(array $payload): string
+    public static function createToken(array $payload): string
     {
 
         $token = new Token(["alg" => "HS256", "typ" => "JWT"], $payload);
-        $coder = new Coder($this->tokenSecret);
+        $coder = new Coder(self::tokenSecret);
         return $coder->encode($token);
     }
 
-    private function isBearer(object $tokenData): bool
+    private static function isBearer(object $tokenData): bool
     {
         return $tokenData->type == "Bearer";
     }
 
-    private function isBasic(object $tokenData): bool
+    private static function isBasic(object $tokenData): bool
     {
         return $tokenData->type == "Basic";
     }
 
-    function getTokenData(): ?TokenData
+    static function getTokenData(): ?TokenData
     {
         $authHeader = (new ServerRequest)->getHeaders()->get("Authorization");
         if (!$authHeader) return null;
@@ -69,14 +57,14 @@ class Auth
 
         $td = new TokenData;
         [$td->type, $td->token] = $tmp;
-        if ($td->type == "Basic") return $this->decodeBasicToken($td);
-        if ($td->type == "Bearer") return $this->decodeBearerToken($td);
+        if ($td->type == "Basic") return self::decodeBasicToken($td);
+        if ($td->type == "Bearer") return self::decodeBearerToken($td);
         return $td;
     }
 
-    function proccessBearerToken(string $token): bool
+    static function proccessBearerToken(string $token): bool
     {
-        $coder = new Coder($this->tokenSecret);
+        $coder = new Coder(self::tokenSecret);
         if (!$coder->validate($token)) return false;
         $tokenData = $coder->decode($token);
         if ($tokenData->isNotBefore()) return false;
@@ -84,7 +72,7 @@ class Auth
         return true;
     }
 
-    private function proccessBasicToken(string $token, $callback): bool
+    private static function proccessBasicToken(string $token, $callback): bool
     {
         $tokenData = base64_decode($token);
         $tokenData = explode(":", $tokenData);
@@ -97,7 +85,7 @@ class Auth
         return true;
     }
 
-    function decodeBasicToken(TokenData $td): TokenData
+    static function decodeBasicToken(TokenData $td): ?TokenData
     {
         $tmp = base64_decode($td->token);
         $tmp = explode(":", $tmp);
@@ -106,9 +94,9 @@ class Auth
         return $td;
     }
 
-    function decodeBearerToken(TokenData $td): TokenData
+    static function decodeBearerToken(TokenData $td): TokenData
     {
-        $coder = new Coder($this->tokenSecret);
+        $coder = new Coder(self::tokenSecret);
         if (!$coder->validate($td->token)) return false;
         $decodedToken = $coder->decode($td->token);
         $td->bearerHeader = $decodedToken->header;

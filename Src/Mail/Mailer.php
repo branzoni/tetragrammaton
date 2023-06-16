@@ -6,63 +6,63 @@ use Tet\Mail\Message;
 
 class Mailer
 {
-	public string $smtpHostname;
-	public int $smtpPort;
-	public int $smtpTimeout; // в миллисекундах
-	public string $smtpLogin;
-	public string $smtpPassword;
+    public static string $smtpHostname;
+    public static int $smtpPort;
+    public static int $smtpTimeout; // в миллисекундах
+    public static string $smtpLogin;
+    public static string $smtpPassword;
 
-	public string $messageTo;
-	public string $messageFrom;
-	public string $messageSender;
-	public string $messageReplyTo = '';
-	public string $messageText;
-	public string $messageSubject;
-	public array $messageAttachments;
-	public string $messageAsHTML;
+    public static string $messageTo;
+    public static string $messageFrom;
+    public static string $messageSender;
+    public static string $messageReplyTo = '';
+    public static string $messageText;
+    public static string $messageSubject;
+    public static array $messageAttachments;
+    public static string $messageAsHTML;
 
-	function send(): bool
-	{
-		$message = $this->createMessage();
+    static function send(): bool
+    {
+        $message = self::createMessage();
 
-		$smtp = $this->createSMTP();
-		if (!$smtp->connect()) return false;
+        $smtp = self::createSMTP();
+        if (!$smtp->connect()) return false;
 
-		$smtp->sendHELO("MyMail");
-		$smtp->sendSTARTTLS();
-		$smtp->sendHELO("MyMail");
-		$smtp->sendAUTHLOGIN();
-		$smtp->sendCommand(base64_encode($this->smtpLogin));
-		$smtp->sendCommand(base64_encode($this->smtpPassword));
-		$smtp->sendMAILFROM($this->messageFrom);
-		$smtp->sendRCPTTO($this->messageTo);
-		$smtp->sendDATA($message->output());
-		$smtp->sendQUIT();
+        $smtp->sendHELO("MyMail");
+        $smtp->sendSTARTTLS();
+        $smtp->sendHELO("MyMail");
+        $smtp->sendAUTHLOGIN();
+        $smtp->sendCommand(base64_encode(self::$smtpLogin));
+        $smtp->sendCommand(base64_encode(self::$smtpPassword));
+        $smtp->sendMAILFROM(self::$messageFrom);
+        $smtp->sendRCPTTO(self::$messageTo);
+        $smtp->sendDATA($message->output());
+        $smtp->sendQUIT();
 
-		return true;
-	}
+        return true;
+    }
 
-	private function createMessage(): Message
-	{
-		$message = new Message;
-		$message->to = $this->messageTo;
-		$message->subject = $this->messageSubject;
-		$message->text = $this->messageText;
-		$message->attachments = $this->messageAttachments;
-		$message->from = $this->messageFrom;
-		$message->sender = $this->messageSender;
-		$message->html = $this->messageAsHTML;
-		$message->reply_to = $this->messageReplyTo;
-		return $message;
-	}
+    private static function createMessage(): Message
+    {
+        $message = new Message;
+        $message->to = self::$messageTo;
+        $message->subject = self::$messageSubject;
+        $message->text = self::$messageText;
+        $message->attachments = self::$messageAttachments;
+        $message->from = self::$messageFrom;
+        $message->sender = self::$messageSender;
+        $message->html = self::$messageAsHTML;
+        $message->reply_to = self::$messageReplyTo;
+        return $message;
+    }
 
 
-	private function createSMTP(): SMTP
-	{
-		$smtp = new SMTP;
-		$smtp->hostname = $this->smtpHostname;
-		$smtp->port = $this->smtpPort;
-		$smtp->timeout = $this->smtpTimeout;
-		return $smtp;
-	}
+    private static function createSMTP(): SMTP
+    {
+        $smtp = new SMTP;
+        $smtp->hostname = self::$smtpHostname;
+        $smtp->port = self::$smtpPort;
+        $smtp->timeout = self::$smtpTimeout;
+        return $smtp;
+    }
 }

@@ -4,16 +4,16 @@ namespace Tet\HTTP;
 
 class Server
 {
-    public function getRequest(): ServerRequest
+    public static function getRequest(): ServerRequest
     {
         return new ServerRequest;
     }
 
-    public function getIP(): string
+    public static function getIP(): string
     {
         return $_SERVER["SERVER_ADDR"];
     }
-    public function getProtocol(): string
+    public static function getProtocol(): string
     {
         $tmp = $_SERVER["SERVER_PROTOCOL"];
         $tmp = explode("/", $tmp);
@@ -24,36 +24,36 @@ class Server
         return "https";
     }
 
-    public function getHost(): string
+    public static function getHost(): string
     {
         $tmp = $_SERVER["HTTP_HOST"] ?? "";
         $tmp = strtolower($tmp);
         return $tmp;
     }
 
-    public function getPort(): string
+    public static function getPort(): string
     {
         return $_SERVER["SERVER_PORT"];
     }
 
-    public function getName(): string
+    public static function getName(): string
     {
         return $_SERVER["SERVER_NAME"];
     }
 
-    public function getRoot($local = true): string
+    public static function getRoot($local = true): string
     {
         $root = $_SERVER["DOCUMENT_ROOT"];
         if ($local) return $root;
         return basename($root);
     }
 
-    function getRequestedURI(): string
+    public static  function getRequestedURI(): string
     {
         return $_SERVER["REQUEST_URI"];
     }
 
-    function sendResponse(Response $response, bool $clean_buffer = false): bool
+    static function sendResponse(Response $response, bool $clean_buffer = false): bool
     {
         if ($clean_buffer && ob_get_level())  ob_end_clean();
 
@@ -70,7 +70,7 @@ class Server
     }
 
     // отправить клиенту данные как файл на скачивание
-    function sendDataAsFile(string $filename, string $data, $type = "application/octet-stream"): bool
+    static function sendDataAsFile(string $filename, string $data, $type = "application/octet-stream"): bool
     {
         $response = new Response;
         $response->code = 200;
@@ -83,8 +83,27 @@ class Server
         $response->headers->setPragma('public');
         $response->headers->setContentLength(strlen($data));
         $response->body = $data;
-        $this->sendResponse($response, true);
+        self::sendResponse($response, true);
 
         return true;
+    }
+
+    public static function createResponse(int $code): Response
+    {
+        return new Response(null, $code);
+    }
+
+    public static function createQuickResponse(bool $value):Response
+    {
+        if(!$value) return new Response(null, 500);
+        return new Response(null, 200);
+    }
+
+    public static function sendAsJson(string $data): Response
+    {
+        $response = new Response();
+        $response->headers->setContentType("application/json");
+        $response->body = $data;
+        return $response;
     }
 }

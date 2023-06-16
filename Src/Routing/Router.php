@@ -14,100 +14,99 @@ use Tet\HTTP\Response;
 
 class Router
 {
-    public ArrayObject $routes;
-    public int $count = 0;
-    public string $root;
-    protected Route $curRoute;
+    public static ArrayObject $routes;
+    public static int $count = 0;
+    public static string $root;
+    protected static Route $curRoute;
 
-    function setRoot(string $root)
+    static function setRoot(string $root)
     {
-        $this->root = $root;
+        self::$root = $root;
     }
 
-    function getRoutes()
+    static function getRoutes()
     {
-        return $this->routes ?? $this->routes = new Routes;
+        return self::$routes ?? self::$routes = new Routes;
     }
 
-    function getCurrentRoute(): ?Route
+    static function getCurrentRoute(): ?Route
     {
-        return $this->curRoute ?? $this->getMatchedRoute();
+        return self::$curRoute ?? self::getMatchedRoute();
     }
 
-    function arr(Route ...$router)
+    static function arr(Route ...$router)
     {
-        array_merge($this->getRoutes(), $router);
+        array_merge(self::getRoutes(), $router);
     }
 
-    function any(string $path, $calback, $default = false): Router
+    static function any(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("any", $path, $calback, $default));
+        return self::addRoute(new Route("any", $path, $calback, $default));
     }
 
-    function get(string $path, $calback, $default = false): Router
+    static function get(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("get", $path, $calback, $default));
+        return self::addRoute(new Route("get", $path, $calback, $default));
     }
 
-    function post(string $path, $calback, $default = false): Router
+    static function post(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("post", $path, $calback, $default));
+        return self::addRoute(new Route("post", $path, $calback, $default));
     }
 
-    function put(string $path, $calback, $default = false): Router
+    static function put(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("put", $path, $calback, $default));
+        return self::addRoute(new Route("put", $path, $calback, $default));
     }
 
-    function delete(string $path, $calback, $default = false): Router
+    static function delete(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("delete", $path, $calback, $default));
+        return self::addRoute(new Route("delete", $path, $calback, $default));
     }
 
-
-    function options(string $path, $calback, $default = false): Router
+    static function options(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("options", $path, $calback, $default));
+        return self::addRoute(new Route("options", $path, $calback, $default));
     }
 
-    function patch(string $path, $calback, $default = false): Router
+    static function patch(string $path, $calback, $default = false): Router
     {
-        return $this->addRoute(new Route("patch", $path, $calback, $default));
+        return self::addRoute(new Route("patch", $path, $calback, $default));
     }
 
-    function getMatchedRoute(): ?Route
+    static function getMatchedRoute(): ?Route
     {
-        $routes = $this->getRoutes();
+        $routes = self::getRoutes();
         if (!$routes) throw new Exception("no router init");
-        if ($this->count == 0) throw new Exception("no router setted");
+        if (self::$count == 0) throw new Exception("no router setted");
 
         $requestMethod = strtolower((new Server)->getRequest()->getMethod());
 
         foreach ($routes as $route) {
             // простое совпадение                      
             if ($route->method != "any" && $requestMethod <> $route->method) continue;
-            if ($route->isRequested($this->root)) return $this->curRoute = $route;
+            if ($route->isRequested(self::$root)) return self::$curRoute = $route;
         }
 
         return null;
     }
 
-    function getDefaultRoute(): ?Route
+    static function getDefaultRoute(): ?Route
     {
-        $routes = $this->getRoutes();
+        $routes = self::getRoutes();
         if (!$routes) throw new Exception("no router init");
-        if ($this->count == 0) throw new Exception("no router setted");
+        if (self::$count == 0) throw new Exception("no router setted");
 
         foreach ($routes as $route) {
-            if ($route->default) return  $this->curRoute = $route;
+            if ($route->default) return  self::$curRoute = $route;
         }
 
         return null;
     }
 
-    function createHTML($destination = "router.html")
+    static function createHTML($destination = "router.html")
     {
-        $routes = $this->getRoutes();
+        $routes = self::getRoutes();
         $html = "<title>Router</title>";
         foreach ($routes as $key => $route) {
             $html .= "<a href=\".$route->uri\">$key. $route->uri</a><br>\r\n";
@@ -116,22 +115,22 @@ class Router
         return "ok";
     }
 
-    private function addRoute(Route $route): Router
+    private static function addRoute(Route $route): Router
     {
-        $routes = $this->getRoutes();
+        $routes = self::getRoutes();
         $routes[] = $route;
-        $this->count = count($routes);
+        self::$count = count($routes);
         //return $route;
-        return $this;
+        return new self;
     }
 
-    function redirect(string $url): bool
+    static function redirect(string $url): bool
     {
         $location = $url;
 
         $path = new Path($location);
         if ($path->isLocal()) {
-            $location = realpath($this->root) . $location;
+            $location = realpath(self::$root) . $location;
             $location = str_replace("//", "/", $location);
             $location = (new Server)->getProtocol() . "://" . (new Path($location))->getRemotePath();
         }
