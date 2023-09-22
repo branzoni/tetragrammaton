@@ -25,10 +25,6 @@ use Tet\Common\Utils;
 
 class Tet
 {
-    public static string $AccessControlAllowOrigin;
-    public static string $AccessControlAllowMethods;
-    public static string $AccessControlAllowHeaders;
-
     public static function router(): Router
     {
         return new Router();
@@ -120,31 +116,6 @@ class Tet
         ];
 
         self::logger()::add($levels[$code], "$message in line $line of $file, $tmp->method, $tmp->url");
-        return self::sendResponse(new Response(json_encode($tmp), 500));
-    }
-
-    public static function _run(): bool
-    {
-        // сначала отрабатываем возможный запрос OPTIONS
-        if (self::server()::getRequest()->isOptions()) return self::sendResponse(new Response(" ", 200));
-
-        // попытка штатно отработать роутинг
-        $route = self::router()::getCurrentRoute();
-        if ($route) return self::sendResponse($route->getResponse());
-
-        // попытка отработать дефолтный роут, если он был указан
-        $route = self::router()::getDefaultRoute();
-        if ($route) return self::router()::redirect($route->uri);
-
-        // возврат ответа 404
-        return self::sendResponse(new Response(null, 404));
-    }
-
-    private static function sendResponse(Response $response): bool
-    {
-        $response->headers->set('Access-Control-Allow-Origin', self::$AccessControlAllowOrigin);
-        $response->headers->set('Access-Control-Allow-Methods', self::$AccessControlAllowMethods);
-        $response->headers->set('Access-Control-Allow-Headers', self::$AccessControlAllowHeaders);
-        return self::server()::sendResponse($response);
+        return Server::sendResponse(new Response(json_encode($tmp), 500));
     }
 }

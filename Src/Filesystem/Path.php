@@ -8,13 +8,13 @@ class Path
 {
     protected string $path;
 
-    function __construct($path)
+	public function __construct($path)
     {
         $this->path = realpath($path);
         if(!$this->path) $this->path = $path;
     }
 
-    function __toString()
+	public function __toString()
     {
         return $this->path;
     }
@@ -22,7 +22,7 @@ class Path
     /*
      * путь к родительской папке файла
     */
-    function getDirname(): string
+	public function getDirname(): string
     {
         return pathinfo($this->path, PATHINFO_DIRNAME);        
     }
@@ -30,7 +30,7 @@ class Path
     /*
      * имя файла без расширения
     */
-    function getFilename(): string
+	public function getFilename(): string
     {
         return pathinfo($this->path, PATHINFO_FILENAME);
     }
@@ -38,35 +38,35 @@ class Path
     /*
      * имя файла с расширением
     */
-    function getBasename(): string
+	public function getBasename(): string
     {
         return basename($this->path);
         return pathinfo($this->path, PATHINFO_BASENAME);
     }
 
-    function getSegments(): array
+	public function getSegments(): array
     {
         $tmp = $this->path;
         if ($tmp[0] = "/") $tmp = substr($tmp, 1);
         return explode("/", $tmp);
     }
 
-    function getSegmentCount(): int
+	public function getSegmentCount(): int
     {
         return count($this->getSegments());
     }
 
-    function getLocalPath(): string
+	public function getLocalPath(): string
     {
         return $this->getPath(true);
     }
 
-    function getRemotePath(): string
+	public function getRemotePath(): string
     {
         return $this->getPath(false);
     }
 
-    function getRelativePath(): string
+	public function getRelativePath(): string
     {
         $server = new Server;
         $tmp = $this->path;
@@ -75,19 +75,19 @@ class Path
         return $tmp;
     }
 
-    function getRealPath(): string
+	public function getRealPath(): string
     {
         return realpath($this->path);
     }
 
-    private function getPath(bool $local = true): string
+	private function getPath(bool $local = true): string
     {
         $tmp = $this->getRelativePath();
         $tmp = (new Server)->getRoot($local) . $tmp;
         return $tmp;
     }
 
-    function isRemote(): bool
+	public function isRemote(): bool
     {
         // возвращает результат проверки, является ли формат пути URL'ом:
         /**
@@ -103,54 +103,54 @@ class Path
         return false;
     }
 
-    function isURL():bool
+	public function isURL():bool
     {
         $string = mb_strtolower($this->path);
         return (preg_match('/^(https|http|ftp|file)\:\/\//', $string) === 1);
     }
 
-    function isLocal(): bool
+	public function isLocal(): bool
     {
         // возвращает результат проверки, является ли формат пути внутренним:
          //nо есть написан он в формате 
         return !$this->isURL();
     }
 
-    function isWindowsPath():bool
+	public function isWindowsPath():bool
     {
         return (preg_match('/^([a-z]|[A-Z]):\\\/', $this->path) === 1);
     }
 
-    function isExists(): bool
+	public function isExists(): bool
     {   
         // сюда должен попадать только реальный путь (роуты не подходят)     
         return (file_exists($this->path));
     }
 
 
-    function unlink(): bool
+	public function unlink(): bool
     {
         if (!$this->isExists()) return true;
         return @unlink($this->path);
     }
 
-    function delete(): bool
+	public function delete(): bool
     {
         return $this->unlink();
     }
 
-    function rename(string $destination): bool
+	public function rename(string $destination): bool
     {
         if(!(new Filesystem)->createDirectory((new Path($destination))->getDirname())) return false;
         return @rename($this->path, $destination);
     }
 
-    function move(string $destination): bool
+	public function move(string $destination): bool
     {
         return $this->rename($destination);
     }
 
-    function copy(string $destination): bool
+	public function copy(string $destination): bool
     {
         $file = new File($this->path);
         if (!(new Filesystem)->createDirectory($file->getDirname())) return false;

@@ -14,6 +14,10 @@ use Tet\HTTP\Response;
 
 class Router
 {
+	public static string $accessControlAllowOrigin;
+	public static string $accessControlAllowMethods;
+	public static string $accessControlAllowHeaders;
+
     public static ArrayObject $routes;
     public static int $count = 0;
     public static string $root;
@@ -21,10 +25,10 @@ class Router
 
     static function setRoot(string $root)
     {
-        self::$root = $root;
+        self::$root = $root; // часть пути, относительно которой определяется динамическая часть
     }
 
-    static function getRoutes()
+    static function getRoutes(): ArrayObject
     {
         return self::$routes ?? self::$routes = new Routes;
     }
@@ -80,7 +84,7 @@ class Router
         if (!$routes) throw new Exception("no router init");
         if (self::$count == 0) throw new Exception("no router setted");
 
-        $requestMethod = strtolower((new Server)->getRequest()->getMethod());
+        $requestMethod = strtolower(Server::getRequest()->getMethod());
 
         foreach ($routes as $route) {
             // простое совпадение                      
@@ -132,11 +136,36 @@ class Router
         if ($path->isLocal()) {
             $location = realpath(self::$root) . $location;
             $location = str_replace("//", "/", $location);
-            $location = (new Server)->getProtocol() . "://" . (new Path($location))->getRemotePath();
+            $location = Server::getProtocol() . "://" . (new Path($location))->getRemotePath();
         }
 
         header("Location: $location");
 
         return true;
     }
+
+	public static function run(): bool
+	{
+		// сначала отрабатываем возможный запрос OPTIONS
+		if (Server::getRequest()->isOptions()) return self::sendResponse(new Response(" ", 200));
+
+		// попытка штатно отработать роутинг
+		$route = self::getCurrentRoute();
+		if ($route) return self::sendResponse($route->getResponse());
+
+		// попытка отработать дефолтный роут, если он был указан
+		$route = self::router()::getDefaultRoute();
+		if ($route) return self::router()::redirect($route->uri);
+
+		// возврат ответа 404
+		return self::sendResponse(new Response(null, 404));
+	}
+
+	private static function sendResponse(Response $response): bool
+	{
+		$response->headers->set('Access-Control-Allow-Origin', self::$accessControlAllowOrigin);
+		$response->headers->set('Access-Control-Allow-Methods', self::$accessControlAllowMethods);
+		$response->headers->set('Access-Control-Allow-Headers', self::$accessControlAllowHeaders);
+		return Server::sendResponse($response);
+	}
 }

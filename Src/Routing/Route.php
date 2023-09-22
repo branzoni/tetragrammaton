@@ -35,13 +35,11 @@ class Route
 
         if (substr($requested, -1) == "/" && substr($route, -1) != "/") $route = "$route/";
 
-        //echo "$route - $requested\r\n";
         if ($route  == $requested) return true;
 
         $path1 = new Path($route);
         $path2 = new Path($requested);
 
-        //echo "$path1 - $path2\r\n";
         if ($path1->getSegmentCount() != $path2->getSegmentCount()) return false;
 
         $count = $path1->getSegmentCount();
@@ -77,7 +75,7 @@ class Route
         $path2 = new Path($tmp);
 
         if ($path1->getSegmentCount() != $path2->getSegmentCount()) return null;
-        //echo "$path1 - $path2 <br>";
+
         $args = [];
         $count = $path1->getSegmentCount();
         $path_1_segments = $path1->getSegments();

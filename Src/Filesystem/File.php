@@ -4,27 +4,27 @@ namespace Tet\Filesystem;
 
 class File extends Path
 {
-    function getExtention()
+	public function getExtention()
     {
         return pathinfo($this->path, PATHINFO_EXTENSION);
     }
 
-    function getSize()
+	public function getSize()
     {
         return filesize($this->path);
     }
 
-    function getContent()
+	public function getContent()
     {
         return file_get_contents($this->path);
     }
 
-    function getHash()
+	public function getHash()
     {
         return md5_file($this->path);
     }
 
-    function __toString()
+	public function __toString()
     {
 
         return $this->getContent();

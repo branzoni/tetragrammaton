@@ -7,13 +7,13 @@ use Tet\Filesystem\Path;
 
 class Filesystem
 {
-    static function createDirectory(string $path): bool
+    public static function createDirectory(string $path): bool
     {
         if ((new Path($path))->isExists($path)) return true;
         return @mkdir($path, 0777, true);
     }
 
-    static function createFile(string $path, $data = null): bool
+	public static function createFile(string $path, $data = null): bool
     {
         $file = new File($path);
         if (!self::createDirectory($file->getDirname())) return false;
@@ -26,7 +26,7 @@ class Filesystem
         return true;
     }
 
-    static function appendToFile(string $path, $data = null): bool
+	public static function appendToFile(string $path, $data = null): bool
     {
         $file = new File($path);
         if (!self::createDirectory($file->getDirname())) return false;
@@ -39,27 +39,27 @@ class Filesystem
         return true;
     }
 
-    static function getPath(string $path): Path
+	public static function getPath(string $path): Path
     {
         return new Path($path);
     }
 
-    static function getFile(string $path): File
+	public static function getFile(string $path): File
     {
         return new File($path);
     }
 
-    static function getDirectory(string $path): Directory
+	public static function getDirectory(string $path): Directory
     {
         return new Directory($path);
     }
 
-    static function getSystemTempDir(): string
+	public static function getSystemTempDir(): string
     {
         return sys_get_temp_dir();
     }
 
-    static function saveUploadedFile(string $source, string $destination)
+	public static function saveUploadedFile(string $source, string $destination)
     {
         $file = new File($destination);
         if (!self::createDirectory($file->getDirname())) return false;
@@ -67,29 +67,29 @@ class Filesystem
         return move_uploaded_file($source, $destination);
     }
 
-    static function getCurPath(): string
+	public static function getCurPath(): string
     {
         return __DIR__;
     }
 
-    static function getFreeSpace(): float
+	public static function getFreeSpace(): float
     {
         return disk_free_space("/");
     }
 
-    static function getTotalSpace(): float
+	public static function getTotalSpace(): float
     {
         return disk_total_space("/");
     }
 
-    static function getUsedSpace(): float
+	public static function getUsedSpace(): float
     {
         $freespace = self::getFreeSpace();
         $totalspace = self::getTotalSpace();
         return $totalspace - $freespace;
     }
 
-    static function getSpaceInfo($format = "gb")
+	public static function getSpaceInfo($format = "gb"): array
     {
         $freespace = self::getFreeSpace();
         $totalspace = self::getTotalSpace();

@@ -81,6 +81,6 @@ class Logger
 
         $data = implode(" ", $data);
 
-        return (new Filesystem)->appendToFile(self::$filePath, $data);
+        return Filesystem::appendToFile(self::$filePath, $data);
     }
 }

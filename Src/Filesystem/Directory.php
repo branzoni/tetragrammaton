@@ -5,7 +5,7 @@ namespace Tet\Filesystem;
 class Directory extends Path
 {
     // возвращает массив с путями к файлам из указанной папки и соответствующие маске
-    function getFileList($patterns = ["*.*"], bool $recursive = true): array
+	public function getFileList($patterns = ["*.*"], bool $recursive = true): array
     {
         $files = [];
         switch (gettype($patterns)) {
@@ -34,7 +34,7 @@ class Directory extends Path
         return $files;
     }
 
-    function getDirectoryList(bool $recursive = true): array
+	public function getDirectoryList(bool $recursive = true): array
     {
         // получаем подпапки в выбранном каталоге                
         $folders = glob($this->path . '/*', GLOB_ONLYDIR | GLOB_NOSORT);
@@ -47,9 +47,9 @@ class Directory extends Path
         }
 
         return $folders;
-    }  
+    }
 
-    function getSize()
+	public function getSize()
     {
         if (PHP_OS_FAMILY != "Linux") return null;
         

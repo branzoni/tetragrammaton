@@ -10,7 +10,7 @@ use Tet\Database\TypesDef;
 
 class MySQL
 {
-    public static $name;
+    public static string $name;
     private static \mysqli $connection;
 
     static function open(string $hostname,  string $database, string $user, string $password, string $charset = "utf8"): bool
@@ -32,7 +32,6 @@ class MySQL
      */
     static function execute(string $query)
     {
-        //print_r($query . "\r\n");
         $result = mysqli_query(self::$connection, $query);
         if ($result === false) throw new Exception(self::getError());
         if ($result === true) return true;
@@ -105,7 +104,6 @@ class MySQL
         // создаем структуру базы
         $db = self::createDatabase2($databaseDef->name);
         $db->createTablesFromSchema($databaseDef);
-        //$db->deleteOutSchemaTables($databaseDef);
         return true;
     }
 
