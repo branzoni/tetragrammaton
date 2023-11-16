@@ -154,8 +154,8 @@ class Router
 		if ($route) return self::sendResponse($route->getResponse());
 
 		// попытка отработать дефолтный роут, если он был указан
-		$route = self::router()::getDefaultRoute();
-		if ($route) return self::router()::redirect($route->uri);
+		$route = self::getDefaultRoute();
+		if ($route) return self::redirect($route->uri);
 
 		// возврат ответа 404
 		return self::sendResponse(new Response(null, 404));

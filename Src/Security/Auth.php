@@ -30,7 +30,7 @@ class Auth
     {
 
         $token = new Token(["alg" => "HS256", "typ" => "JWT"], $payload);
-        $coder = new Coder(self::tokenSecret);
+        $coder = new Coder(self::$tokenSecret);
         return $coder->encode($token);
     }
 
@@ -64,7 +64,7 @@ class Auth
 
     static function proccessBearerToken(string $token): bool
     {
-        $coder = new Coder(self::tokenSecret);
+        $coder = new Coder(self::$tokenSecret);
         if (!$coder->validate($token)) return false;
         $tokenData = $coder->decode($token);
         if ($tokenData->isNotBefore()) return false;
@@ -96,7 +96,7 @@ class Auth
 
     static function decodeBearerToken(TokenData $td): TokenData
     {
-        $coder = new Coder(self::tokenSecret);
+        $coder = new Coder(self::$tokenSecret);
         if (!$coder->validate($td->token)) return false;
         $decodedToken = $coder->decode($td->token);
         $td->bearerHeader = $decodedToken->header;
