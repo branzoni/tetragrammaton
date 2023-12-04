@@ -76,6 +76,6 @@ class Log
 
         $data = implode(" ", $data);
 
-        return (new Filesystem)->appendToFile($this->filePath, $data);
+        return Filesystem::appendToFile($this->filePath, $data);
     }
 }

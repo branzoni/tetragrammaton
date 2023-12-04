@@ -68,10 +68,9 @@ class Path
 
 	public function getRelativePath(): string
     {
-        $server = new Server;
         $tmp = $this->path;
         $tmp = str_replace("\\", "/", $tmp);
-        $tmp = str_replace([$server->getRoot(), $server->getRoot(false)], "", $tmp);
+        $tmp = str_replace([Server::getRoot(), Server::getRoot(false)], "", $tmp);
         return $tmp;
     }
 
@@ -83,7 +82,7 @@ class Path
 	private function getPath(bool $local = true): string
     {
         $tmp = $this->getRelativePath();
-        $tmp = (new Server)->getRoot($local) . $tmp;
+        $tmp = Server::getRoot($local) . $tmp;
         return $tmp;
     }
 
@@ -141,7 +140,7 @@ class Path
 
 	public function rename(string $destination): bool
     {
-        if(!(new Filesystem)->createDirectory((new Path($destination))->getDirname())) return false;
+        if(!Filesystem::createDirectory((new Path($destination))->getDirname())) return false;
         return @rename($this->path, $destination);
     }
 
@@ -153,7 +152,7 @@ class Path
 	public function copy(string $destination): bool
     {
         $file = new File($destination);
-        if (!(new Filesystem)::createDirectory($file->getDirname())) return false;
+        if (!Filesystem::createDirectory($file->getDirname())) return false;
         // скачиваем файл по ссылке и сохраняем по указанному пути
 
         // считываем содержимое исходного файла

@@ -115,7 +115,7 @@ class Router
         foreach ($routes as $key => $route) {
             $html .= "<a href=\".$route->uri\">$key. $route->uri</a><br>\r\n";
         }
-        (new Filesystem)->createFile($destination, $html);
+        Filesystem::createFile($destination, $html);
         return "ok";
     }
 

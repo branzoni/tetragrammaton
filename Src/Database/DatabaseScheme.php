@@ -33,9 +33,9 @@ class DatabaseScheme
 
     private function createDirectoryStructure(string $destination, string $dbname):bool
     {
-        (new Filesystem)->createDirectory("$destination/$dbname");
-        (new Filesystem)->createDirectory("$destination/$dbname/Tables");
-        (new Filesystem)->createDirectory("$destination/$dbname/RowCollections");
+        Filesystem::createDirectory("$destination/$dbname");
+        Filesystem::createDirectory("$destination/$dbname/Tables");
+        Filesystem::createDirectory("$destination/$dbname/RowCollections");
         return true;
     }
 
@@ -73,7 +73,7 @@ class DatabaseScheme
 
     private function createRowClass(string $destination, $namespace, $dbname, Table $table): bool
     {
-        (new Filesystem)->createDirectory("$destination/$dbname/Rows");
+        Filesystem::createDirectory("$destination/$dbname/Rows");
 
         $tablename = $table->getName();
 

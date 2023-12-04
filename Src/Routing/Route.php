@@ -30,7 +30,7 @@ class Route
     {
         $route = (new Path($root))->getRelativePath() . $this->uri;
         $route = str_replace("//", "/", $route);
-        $requested = (new Server)->getRequestedURI();
+        $requested = Server::getRequestedURI();
         $requested = explode("?", $requested)[0];
 
         if (substr($requested, -1) == "/" && substr($route, -1) != "/") $route = "$route/";
@@ -69,7 +69,7 @@ class Route
         $path1 = (new Path($this->uri))->getRelativePath();
         $path1 = new Path($path1);
 
-        $path2 = new Path((new Server)->getRequestedURI());
+        $path2 = new Path(Server::getRequestedURI());
         $tmp = $path2->getSegmentCount() - $path1->getSegmentCount();
         $tmp = "/" . implode("/", array_slice($path2->getSegments(), $tmp));
         $path2 = new Path($tmp);
