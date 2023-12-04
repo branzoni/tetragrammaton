@@ -9,7 +9,9 @@ class ServerRequest
     public function getHeaders():Headers
     {
         $tmp = new Headers;
-        $tmp->add(getallheaders());
+		$headers = getallheaders();
+		$headers = array_change_key_case($headers);
+        $tmp->add($headers);
         return $tmp;
     }
 
