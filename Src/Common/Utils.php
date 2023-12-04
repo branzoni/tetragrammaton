@@ -4,6 +4,11 @@ namespace Tet\Common;
 
 class Utils
 {
+	public static function getUniqIidMd5()
+    {
+		return md5(uniqid(true));
+	}
+
     public static function getRandomString(int $length = 40, string $keyspace = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"): String
     {
         //возвращает строку из произвольного количества случайных символов

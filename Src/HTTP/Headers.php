@@ -6,6 +6,10 @@ use Tet\Common\Collection;
 
 class Headers extends Collection
 {
+
+	function get($name) {
+		return parent::get(strtolower($name));
+	}
     function setContentDescription($value)
     {
         $this->values["Content-Description"] = $value;

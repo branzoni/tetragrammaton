@@ -13,13 +13,17 @@ class MySQL
     public static string $name;
     private static \mysqli $connection;
 
-    static function open(string $hostname,  string $database, string $user, string $password, string $charset = "utf8"): bool
-    {
-        self::$connection = mysqli_connect($hostname, $user, $password, $database);
-        if (!self::$connection) return false;
-        self::setCharset($charset);
+	static function open(string $hostname = null,  string $database = null, string $user = null, string $password = null, string $charset = "utf8"): bool
+	{
+		self::$connection = mysqli_connect($hostname, $user, $password, $database);
+		if (!self::$connection) return false;
+		self::setCharset($charset);
 
-        return boolval(self::$connection);
+		return boolval(self::$connection);
+	}
+    static function open2(string $hostname, string $user, string $password, string $database = null, string $charset = "utf8"): bool
+    {
+		return self::open($hostname, $user, $password, $database, $charset);
     }
 
     static function close(): bool
