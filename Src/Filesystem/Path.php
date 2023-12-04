@@ -152,9 +152,8 @@ class Path
 
 	public function copy(string $destination): bool
     {
-        $file = new File($this->path);
-        if (!(new Filesystem)->createDirectory($file->getDirname())) return false;
-
+        $file = new File($destination);
+        if (!(new Filesystem)::createDirectory($file->getDirname())) return false;
         // скачиваем файл по ссылке и сохраняем по указанному пути
 
         // считываем содержимое исходного файла
