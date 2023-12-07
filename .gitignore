@@ -2,5 +2,6 @@
 index.php
 App/*
 App2/*
+vendor/
 .htaccess
 .env
