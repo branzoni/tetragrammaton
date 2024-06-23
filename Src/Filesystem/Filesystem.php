@@ -29,7 +29,9 @@ class Filesystem
 	public static function appendToFile(string $path, $data = null): bool
     {
         $file = new File($path);
-        if (!self::createDirectory($file->getDirname())) return false;
+        if (!self::createDirectory($file->getDirname())) {
+			throw new \Exception("create directory \"{$file->getDirname()}\" failed");
+		};
 
         $stream = fopen($path, "a+");
         if (!$stream) return false;

@@ -5,3 +5,4 @@ App2/*
 vendor/
 .htaccess
 .env
+.idea/

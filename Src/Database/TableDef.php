@@ -8,6 +8,7 @@ class TableDef
     public string $charset;
 	public string $engine;
     public ColumnCollection $columns;
+	public array $indexes;
 
     function __construct(string $name,  $charset = "utf8", $engine = "INNODB")
     {
@@ -15,6 +16,7 @@ class TableDef
         $this->charset = $charset;
 		$this->engine = $engine;
         $this->columns = new ColumnCollection();
+		$this->indexes = [];
     }
 
     function addColumn(string $name, TypeDef $type): ColumnDef
@@ -25,6 +27,11 @@ class TableDef
         $this->columns = new ColumnCollection($tmp);
         return $column;
     }
+
+	function addIndex(...$columnNames)
+	{
+		$this->indexes[] = $columnNames;
+	}
 
     function __toString()
     {

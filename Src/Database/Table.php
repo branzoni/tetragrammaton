@@ -204,4 +204,15 @@ class Table
         }
         return true;
     }
+
+	function addUniqueIndexesFromSchema(TableDef $tableDef)
+	{
+		foreach ($tableDef->indexes as $index) {
+			$indexName = 'unique_' . implode("_", $index);
+			$indexValue = implode(",", $index);
+			$this->dropIndex($indexName);
+			$this->mySQL->execute("ALTER TABLE $this->name ADD UNIQUE INDEX `$indexName` ($indexValue)");
+		}
+		////ALTER TABLE `itisme`.`user` ADD UNIQUE INDEX `INDEX_DDLH` (`login`,`service_uid`)
+	}
 }

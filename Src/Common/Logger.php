@@ -70,7 +70,7 @@ class Logger
 
     public  static function add(?string $level, ?string $message): bool
     {
-        if (!self::$filePath) return false;
+        if (!self::$filePath) throw new \Exception("File path not set");
 
         $data = [
             "[" . date("Y-m-d H-i-s") . "]",

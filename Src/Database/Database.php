@@ -79,7 +79,7 @@ class Database
         $table = $this->getTable($name);   
         $table->addColumnsFromSchema($tableDef);
         $table->deleteOutSchemaColumns($tableDef);
-
+		$table->addUniqueIndexesFromSchema($tableDef);
         return true;
     }
 
@@ -89,7 +89,6 @@ class Database
             if ($this->hasTable($newTable->name)) $this->modifyTable($newTable->name, $newTable);
             else $this->createTable($newTable);
         });
-
         return true;
     }
 

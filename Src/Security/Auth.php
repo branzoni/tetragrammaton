@@ -26,13 +26,17 @@ class Auth
         return true;
     }
 
-    public static function createToken(array $payload): string
+    public static function createBearerToken(array $payload): string
     {
-
         $token = new Token(["alg" => "HS256", "typ" => "JWT"], $payload);
         $coder = new Coder(self::$tokenSecret);
         return $coder->encode($token);
     }
+
+	public static function createBasicToken($login, $password): string
+	{
+		return "Basic " . base64_encode("{$login}:{$password}");
+	}
 
     private static function isBearer(object $tokenData): bool
     {
@@ -47,19 +51,21 @@ class Auth
     static function getTokenData(): ?TokenData
     {
         $authHeader = (new ServerRequest)->getHeaders()->get("Authorization");
-        if (!$authHeader) return null;
-
         $tmp = explode(" ", $authHeader);
-        if (count($tmp) != 2) return null;
-        if (!$tmp[0]) return null;
-        if (!$tmp[1]) return null;
+        if (
+			count($tmp) != 2 ||
+			!$tmp[0] ||
+			!$tmp[1]
+		) throw new \Exception("Unknown token format", 400);
 
 
         $td = new TokenData;
         [$td->type, $td->token] = $tmp;
+
+
         if ($td->type == "Basic") return self::decodeBasicToken($td);
         if ($td->type == "Bearer") return self::decodeBearerToken($td);
-        return $td;
+		throw new \Exception("Unknown token type", 400);
     }
 
     static function proccessBearerToken(string $token): bool
@@ -89,7 +95,7 @@ class Auth
     {
         $tmp = base64_decode($td->token);
         $tmp = explode(":", $tmp);
-        if (count($tmp) != 2) return null;
+        if (count($tmp) != 2) throw new \Exception("Bad basic token: " . base64_decode($td->token), 400);;
         [$td->login, $td->password]  = $tmp;
         return $td;
     }
