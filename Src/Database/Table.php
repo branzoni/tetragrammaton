@@ -66,9 +66,9 @@ class Table
         return $this->getColumnsInfo()->get($column);
     }
 
-    function setCharset(string $charset = "utf8", string $collate = "utf8_general_ci"): bool
+    function setCharset(string $charset = "utf8", string $collate = "utf8_general_ci"): void
     {
-        return $this->mySQL->execute("ALTER TABLE `$this->name` CONVERT TO CHARACTER SET $charset COLLATE  $collate;");
+        $this->mySQL->execute("ALTER TABLE `$this->name` CONVERT TO CHARACTER SET $charset COLLATE  $collate;");
     }
 
     function hasColumn(string $name): bool
@@ -86,9 +86,9 @@ class Table
         return boolval($this->mySQL->execute("SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE table_schema = DATABASE() AND table_name='$this->name' and INDEX_NAME = 'PRIMARY'"));
     }
 
-    function dropColumn(string $name): bool
+    function dropColumn(string $name): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name DROP COLUMN `$name`;");
+        $this->mySQL->execute("ALTER TABLE $this->name DROP COLUMN `$name`;");
     }
 
     function dropIndex(string $name): bool
@@ -96,76 +96,76 @@ class Table
         return $this->mySQL->execute("DROP INDEX $name ON $this->name");
     }
 
-    function dropPrimaryKey(): bool
+    function dropPrimaryKey(): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name DROP PRIMARY KEY");
+        $this->mySQL->execute("ALTER TABLE $this->name DROP PRIMARY KEY");
     }
 
-    function addColumn(string $name, string $type): bool
+    function addColumn(string $name, string $type): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name ADD $name $type;");
+        $this->mySQL->execute("ALTER TABLE $this->name ADD $name $type;");
     }
 
-    function addIndex(string $name, string $type): bool
+    function addIndex(string $name, string $type): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name ADD $type INDEX $name($name)");
+        $this->mySQL->execute("ALTER TABLE $this->name ADD $type INDEX $name($name)");
     }
 
-    function addUniqueIndex(string $name): bool
+    function addUniqueIndex(string $name): void
     {
-        return $this->addIndex($name, "UNIQUE");
+        $this->addIndex($name, "UNIQUE");
     }
 
-    function addFulltextIndex(string $name): bool
+    function addFulltextIndex(string $name): void
     {
-        return $this->addIndex($name, "FULLTEXT");
+        $this->addIndex($name, "FULLTEXT");
     }
 
-    function addSpatialIndex(string $name): bool
+    function addSpatialIndex(string $name): void
     {
-        return $this->addIndex($name, "SPATIAL");
+        $this->addIndex($name, "SPATIAL");
     }
 
-    function renameColumn(string $curName, string $newName): bool
+    function renameColumn(string $curName, string $newName): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name RENAME COLUMN $curName to $newName;");
+        $this->mySQL->execute("ALTER TABLE $this->name RENAME COLUMN $curName to $newName;");
     }
 
-    function setColumnDataType(string $name, string $type): bool
+    function setColumnDataType(string $name, string $type): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name MODIFY COLUMN `$name` $type;");
+        $this->mySQL->execute("ALTER TABLE $this->name MODIFY COLUMN `$name` $type;");
     }
 
-    function setAutoincrimentValue($value = 1): bool
+    function setAutoincrimentValue($value = 1): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name AUTO_INCREMENT = $value");
+        $this->mySQL->execute("ALTER TABLE $this->name AUTO_INCREMENT = $value");
     }
 
-    function setColumnDefaultValue(string $name, $value): bool
+    function setColumnDefaultValue(string $name, $value): void
     {
-        return $this->mySQL->execute("ALTER TABLE $this->name ALTER COLUMN $name SET DEFAULT $value");
+        $this->mySQL->execute("ALTER TABLE $this->name ALTER COLUMN $name SET DEFAULT $value");
     }
 
-    function addAutoincriment(string $column): bool
+    function addAutoincriment(string $column): void
     {
         $column = $this->getColumnDef($column);
         $column->setAutoincriment();
         $column->setPrimaryKey();
-        return $this->mySQL->execute("ALTER TABLE $this->name MODIFY $column");
+        $this->mySQL->execute("ALTER TABLE $this->name MODIFY $column");
     }
 
-    function trancate(): bool
+    function trancate(): void
     {
-        return $this->mySQL->execute("TRUNCATE TABLE $this->name;");
+        $this->mySQL->execute("TRUNCATE TABLE $this->name;");
     }
 
-    function duplicateRow(string $idColumnName, string $idColumnValue): bool
+    function duplicateRow(string $idColumnName, string $idColumnValue): void
     {
         $columns = implode(", ", $this->getColumnsInfo()->getKeys());
-        return $this->mySQL->execute("INSERT INTO `$this->name` ($columns) SELECT " . str_replace($idColumnName, "NULL", $columns) . " FROM `$this->name` WHERE `$idColumnName` = $idColumnValue");
+        $this->mySQL->execute("INSERT INTO `$this->name` ($columns) SELECT " . str_replace($idColumnName, "NULL", $columns) . " FROM `$this->name` WHERE `$idColumnName` = $idColumnValue");
     }
 
-    function modifyColumn(ColumnDef $column): bool
+    function modifyColumn(ColumnDef $column): void
     {
         $this->setColumnDataType($column->getName(), $column->getType());
 
@@ -178,22 +178,18 @@ class Table
         if ($column->isUnique()) $this->addUniqueIndex($column->getName());
 
         if ($column->hasDefault()) $this->setColumnDefaultValue($column->getName(), $column->getDefault());
-
-        return true;
     }
 
-    function addColumnsFromSchema(TableDef $tableDef): bool
+    function addColumnsFromSchema(TableDef $tableDef): void
     {
         $tableDef->columns->forEach(function ($key, ColumnDef $column) {
 
             if ($this->getColumnsInfo()->has($column->getName()))  $this->modifyColumn($column);
             else $this->addColumn($column->getName(), $column->getType());
         });
-
-        return true;
     }
 
-    function deleteOutSchemaColumns(TableDef $tableDef): bool
+    function deleteOutSchemaColumns(TableDef $tableDef): void
     {
         $new_columns = $tableDef->columns->getKeys();
         $cur_columns = $this->getColumnsInfo()->getKeys();
@@ -202,10 +198,9 @@ class Table
         foreach ($unneededColumns as $key => $column) {
             $this->dropColumn($column);
         }
-        return true;
     }
 
-	function addUniqueIndexesFromSchema(TableDef $tableDef)
+	function addUniqueIndexesFromSchema(TableDef $tableDef): void
 	{
 		foreach ($tableDef->indexes as $index) {
 			$indexName = 'unique_' . implode("_", $index);
@@ -213,6 +208,5 @@ class Table
 			$this->dropIndex($indexName);
 			$this->mySQL->execute("ALTER TABLE $this->name ADD UNIQUE INDEX `$indexName` ($indexValue)");
 		}
-		////ALTER TABLE `itisme`.`user` ADD UNIQUE INDEX `INDEX_DDLH` (`login`,`service_uid`)
 	}
 }

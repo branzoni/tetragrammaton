@@ -10,7 +10,7 @@ use Tet\Database\TableCollection;
 
 class DatabaseScheme
 {
-    function createCode($structure, $destination = "./", $namespace = ""): bool
+    function createCode($structure, $destination = "./", $namespace = ""): void
     {
         $dbname = $structure["name"];
         $tables = $structure["tables"];
@@ -27,19 +27,16 @@ class DatabaseScheme
             $this->createRowCollectionClass($destination, $namespace, $dbname, $table);
             return true;
         });
-
-        return true;
     }
 
-    private function createDirectoryStructure(string $destination, string $dbname):bool
+    private function createDirectoryStructure(string $destination, string $dbname): void
     {
         Filesystem::createDirectory("$destination/$dbname");
         Filesystem::createDirectory("$destination/$dbname/Tables");
         Filesystem::createDirectory("$destination/$dbname/RowCollections");
-        return true;
     }
 
-    private function createDatabaseClass(string $destination, $namespace, string $dbname, TableCollection $tables): bool
+    private function createDatabaseClass(string $destination, $namespace, string $dbname, TableCollection $tables): void
     {
         $cg = new CodeGenerator();
         $cg->open("$destination/$dbname/$dbname.php");
@@ -67,11 +64,10 @@ class DatabaseScheme
         $cg->line("}", 1);
         $cg->line("}");
         $cg->close();
-        return true;
     }
 
 
-    private function createRowClass(string $destination, $namespace, $dbname, Table $table): bool
+    private function createRowClass(string $destination, $namespace, $dbname, Table $table): void
     {
         Filesystem::createDirectory("$destination/$dbname/Rows");
 
@@ -100,10 +96,9 @@ class DatabaseScheme
 
         $cg->line("}");
         $cg->close();
-        return true;
     }
 
-    private function createRowCollectionClass(string $destination, $namespace, $dbname, Table $table): bool
+    private function createRowCollectionClass(string $destination, $namespace, $dbname, Table $table): void
     {
         $tablename = $table->getName();
 
@@ -126,10 +121,9 @@ class DatabaseScheme
         $cg->line("}", 1);
         $cg->line("}");
         $cg->close();
-        return true;
     }
 
-    private function createTableClass(string $destination, $namespace, $dbname, Table $table): bool
+    private function createTableClass(string $destination, $namespace, $dbname, Table $table): void
     {
         $tablename = $table->getName();
 
@@ -188,6 +182,5 @@ class DatabaseScheme
         $cg->line("}");
 
         $cg->close();
-        return true;
     }
 }

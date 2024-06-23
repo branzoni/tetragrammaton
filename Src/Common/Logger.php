@@ -68,7 +68,7 @@ class Logger
         self::add(self::LVL_DEBUG, $data);
     }
 
-    public  static function add(?string $level, ?string $message): bool
+    public  static function add(?string $level, ?string $message): void
     {
         if (!self::$filePath) throw new \Exception("File path not set");
 
@@ -81,6 +81,6 @@ class Logger
 
         $data = implode(" ", $data);
 
-        return Filesystem::appendToFile(self::$filePath, $data);
+        Filesystem::appendToFile(self::$filePath, $data);
     }
 }

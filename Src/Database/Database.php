@@ -29,9 +29,9 @@ class Database
         return $this->name;
     }
 
-    function setCharset(string $charset = "utf8"): bool
+    function setCharset(string $charset = "utf8"): void
     {
-        return $this->execute("ALTER DATABASE DATABASE() charset=$charset;");
+        $this->execute("ALTER DATABASE DATABASE() charset=$charset;");
     }
 
     function getTableNames(): array
@@ -64,35 +64,33 @@ class Database
         return $this->getTables()->has(($name));
     }
 
-    function createTable(TableDef $tableDef): bool
+    function createTable(TableDef $tableDef): void
     {
-        return $this->execute($tableDef);
+        $this->execute($tableDef);
     }
 
-    function dropTable(string $name): bool
+    function dropTable(string $name): void
     {
-        return $this->execute("DROP TABLE $name");
+        $this->execute("DROP TABLE $name");
     }
 
-    function modifyTable(string $name, TableDef $tableDef): bool
+    function modifyTable(string $name, TableDef $tableDef): void
     {
         $table = $this->getTable($name);   
         $table->addColumnsFromSchema($tableDef);
         $table->deleteOutSchemaColumns($tableDef);
 		$table->addUniqueIndexesFromSchema($tableDef);
-        return true;
     }
 
-    function createTablesFromSchema(DatabaseDef $databaseDef):bool
+    function createTablesFromSchema(DatabaseDef $databaseDef): void
     {
         $databaseDef->getTables()->forEach(function ($key, TableDef $newTable) {
             if ($this->hasTable($newTable->name)) $this->modifyTable($newTable->name, $newTable);
             else $this->createTable($newTable);
         });
-        return true;
     }
 
-    function deleteOutSchemaTables(DatabaseDef $databaseDef):bool
+    function deleteOutSchemaTables(DatabaseDef $databaseDef): void
     {        
         // удаляем таблицы, которых нет в структуре
         $newTables = $databaseDef->getTables()->getKeys();
@@ -100,8 +98,7 @@ class Database
         $outSchemaTables = array_diff($curTables, $newTables);
         foreach ($outSchemaTables as $key => $table) {            
             $this->dropTable($table);
-        }    
-        return true;
+        }
     }
 
     function getSchemaAsArray(): array
@@ -122,13 +119,13 @@ class Database
         return json_encode($this->getSchemaAsArray());
     }
 
-    function getSchemaAsCode($destination = "./", $namespace = ""): bool
+    function getSchemaAsCode($destination = "./", $namespace = ""): void
     {
         $structure = [
             "name" => $this->getName(),
             "tables" => $this->getTables()
         ];
         $scheme = new DatabaseScheme($this, $this->mySQL);        
-        return $scheme->createCode($structure, $destination, $namespace);
+        $scheme->createCode($structure, $destination, $namespace);
     }
 }

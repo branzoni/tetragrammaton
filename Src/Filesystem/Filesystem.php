@@ -7,38 +7,28 @@ use Tet\Filesystem\Path;
 
 class Filesystem
 {
-    public static function createDirectory(string $path): bool
+    public static function createDirectory(string $path): void
     {
-        if ((new Path($path))->isExists($path)) return true;
-        return @mkdir($path, 0777, true);
+        if ((new Path($path))->isExists($path)) return;
+        if (@mkdir($path, 0777, true)) {
+			throw new \Exception("Create directory '$path' failed");
+		};
     }
 
-	public static function createFile(string $path, $data = null): bool
+	public static function createFile(string $path, $data = null): void
     {
         $file = new File($path);
-        if (!self::createDirectory($file->getDirname())) return false;
+        self::createDirectory($file->getDirname()));
 
         $stream = fopen($path, "w");
-        if (!$stream) return false;
-        if (!fwrite($stream, $data)) return false;
-        if (!fclose($stream)) return false;
-
-        return true;
+        if (!$stream) throw new \Exception("File opening '$path' failed");
+        if (!fwrite($stream, $data)) throw new \Exception("File writing '$path' failed");
+        if (!fclose($stream)) throw new \Exception("File closing '$path' failed");;
     }
 
-	public static function appendToFile(string $path, $data = null): bool
+	public static function appendToFile(string $path, $data = null): void
     {
-        $file = new File($path);
-        if (!self::createDirectory($file->getDirname())) {
-			throw new \Exception("create directory \"{$file->getDirname()}\" failed");
-		};
-
-        $stream = fopen($path, "a+");
-        if (!$stream) return false;
-        if (!fwrite($stream, $data)) return false;
-        if (!fclose($stream)) return false;
-
-        return true;
+        self::createFile($path, $data);
     }
 
 	public static function getPath(string $path): Path

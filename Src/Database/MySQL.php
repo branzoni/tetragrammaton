@@ -20,22 +20,21 @@ class MySQL
 		}
 	}
 
-	public static function open(string $hostname = null,  string $database = null, string $user = null, string $password = null, string $charset = "utf8"): bool
+	public static function open(string $hostname = null,  string $database = null, string $user = null, string $password = null, string $charset = "utf8"): void
 	{
 		self::$connection = mysqli_connect($hostname, $user, $password, $database);
 		if (!self::$connection) return false;
 		self::setCharset($charset);
-
-		return boolval(self::$connection);
 	}
-	public static function open2(string $hostname, string $user, string $password, string $database = null, string $charset = "utf8"): bool
+
+	public static function open2(string $hostname, string $user, string $password, string $database = null, string $charset = "utf8"): void
     {
 		return self::open($hostname, $user, $password, $database, $charset);
     }
 
-	public static function close(): bool
+	public static function close(): void
     {
-        return mysqli_close(self::$connection);
+        mysqli_close(self::$connection);
     }
 
     /**
@@ -74,19 +73,19 @@ class MySQL
         return boolval(self::$connection);
     }
 
-	public static function setCharset(string $charset = "utf8"): bool
+	public static function setCharset(string $charset = "utf8"): void
     {
-        return mysqli_set_charset(self::$connection, $charset);
+        mysqli_set_charset(self::$connection, $charset);
     }
 
-	public static function createDatabase(string $name): bool
+	public static function createDatabase(string $name): void
     {
-        return self::execute("CREATE DATABASE IF NOT EXISTS $name");
+        self::execute("CREATE DATABASE IF NOT EXISTS $name");
     }
 
-	public static function selectDatabase(string $database): bool
+	public static function selectDatabase(string $database): void
     {
-        return mysqli_select_db(self::$connection, $database);
+        mysqli_select_db(self::$connection, $database);
     }
 
 	public static function getCurrentDb(): Database
@@ -101,21 +100,19 @@ class MySQL
         return self::getCurrentDb();
     }
 
-	public static function createDatabaseFromSchema(DatabaseDef $databaseDef): bool
+	public static function createDatabaseFromSchema(DatabaseDef $databaseDef): void
     {
         // создаем структуру базы        
         $db = self::createDatabase2($databaseDef->name);
         $db->createTablesFromSchema($databaseDef);
         $db->deleteOutSchemaTables($databaseDef);
-        return true;
     }
 
-	public static function modifyDatabaseFromSchema(DatabaseDef $databaseDef): bool
+	public static function modifyDatabaseFromSchema(DatabaseDef $databaseDef): void
     {
         // создаем структуру базы
         $db = self::createDatabase2($databaseDef->name);
         $db->createTablesFromSchema($databaseDef);
-        return true;
     }
 
 	public static function getQuery(): Query
