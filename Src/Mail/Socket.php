@@ -16,6 +16,11 @@ class Socket
 		socket_set_timeout($this->handle, 0, $timeout * 1000);
 	}
 
+	public function close(): void
+	{
+		fclose($this->handle);
+	}
+
 	public function write(string $data): void
 	{
 		if (!$this->isOpened()) throw new \Exception("Socket Object: socket not opened");;
