@@ -40,7 +40,7 @@ class MySQL
     /**
      * @throws Exception
      */
-	public static function execute(string $query): mixed
+	public static function execute(string $query)
     {
         $result = mysqli_query(self::$connection, $query);
         if ($result === false) throw new Exception(self::getError());
