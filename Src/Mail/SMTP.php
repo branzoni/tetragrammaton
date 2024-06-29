@@ -4,58 +4,53 @@ namespace Tet\Mail;
 
 class SMTP
 {
-	public string $hostname;
-	public int $port;
-	public int $timeout; // в миллисекундах
 	private Socket $socket;
 
-	function connect(): void
+	public function connect($hostname, $port, $timeout): void
 	{
-		$this->socket = new Socket;
-		$this->socket->hostname = $this->hostname;
-		$this->socket->port = $this->port;
-		$this->socket->timeout = $this->timeout;
-		$this->socket->open();
+		$this->socket->open($hostname, $port, $timeout);
 	}
 
-	function sendCommand(string $commad): ?string
+	public function sendCommand(string $command): ?string
 	{
-		return $this->socket->writeAndRead("$commad\r\n");
+		return $this->socket->writeAndRead("$command\r\n");
 	}
 
-	function sendHELO(string $serverName): ?string
+	public function sendHELO(string $serverName): ?string
 	{
 		return $this->sendCommand("EHLO $serverName");
 	}
 
-	function sendSTARTTLS()
+	public function sendSTARTTLS()
 	{
 		$this->sendCommand("STARTTLS");
 		$this->socket->enableCrypto();
 	}
 
-	function sendAUTHLOGIN(): string
+	public function sendAUTHLOGIN(): string
 	{
 		return $this->sendCommand("AUTH LOGIN");
 	}
 
-	function sendMAILFROM($value)
+	public function sendMAILFROM($value)
 	{
 		$this->sendCommand("MAIL FROM: <$value>");
 	}
 
-	function sendRCPTTO($value)
+	public function sendRCPTTO($value)
 	{
 		$this->sendCommand("RCPT TO: <$value>");
 	}
 
-	function sendQUIT()
+	public function sendQUIT()
 	{
 		$this->sendCommand("QUIT");
 	}
 
-	function sendDATA($data)
+	public function sendDATA($data)
 	{
+		$isWindows = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+
 		$this->sendCommand("DATA");
 
 		$data = str_replace("\r\n", "\n", $data);
@@ -64,10 +59,10 @@ class SMTP
 		$lines = explode("\n", $data);
 
 		foreach ($lines as $line) {
-			$results = str_split($line, $length);
-			foreach ($results as $result) {
-				if (substr(PHP_OS, 0, 3) != 'WIN') $this->socket->writeAndRead($result . "\r\n");
-				else $this->socket->writeAndRead(str_replace("\n", "\r\n", $result) . "\r\n");
+			$lineParts = str_split($line, $length);
+			foreach ($lineParts as $linePart) {
+				if (!$isWindows) $linePart = str_replace("\n", "\r\n", $linePart);
+				$this->socket->writeAndRead($linePart . "\r\n");
 			}
 		}
 
