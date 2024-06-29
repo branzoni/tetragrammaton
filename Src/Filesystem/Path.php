@@ -157,11 +157,11 @@ class Path
 
         // считываем содержимое исходного файла
         $source = fopen($this->path, "rb");
-        if (!$source) return false;
+        if (!$source) throw new \Exception('Source file open failure');
 
         // открываем на запись целевой файл
         $destination = fopen($destination, "wb");
-        if (!$destination) return false;
+        if (!$destination) throw new \Exception('Destination file open failure');
 
         // пишем данные блоками
         while (!feof($source)) {
