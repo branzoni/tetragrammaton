@@ -20,10 +20,9 @@ class Auth
         return true;
     }
 
-    public static function setTokenSecret(string $secret = ""): bool
+    public static function setTokenSecret(string $secret = ""): void
     {
         self::$tokenSecret = $secret;
-        return true;
     }
 
     public static function createBearerToken(array $payload): string
@@ -68,27 +67,24 @@ class Auth
 		throw new \Exception("Unknown token type", 400);
     }
 
-    static function proccessBearerToken(string $token): bool
+    static function proccessBearerToken(string $token): void
     {
         $coder = new Coder(self::$tokenSecret);
-        if (!$coder->validate($token)) return false;
+        if (!$coder->validate($token)) throw new \Exception("Token not valid");
         $tokenData = $coder->decode($token);
-        if ($tokenData->isNotBefore()) return false;
-        if ($tokenData->isExpired()) return false;
-        return true;
+        if ($tokenData->isNotBefore()) throw new \Exception("Token is not before");
+        if ($tokenData->isExpired()) throw new \Exception("Token is expired");
     }
 
-    private static function proccessBasicToken(string $token, $callback): bool
+    private static function proccessBasicToken(string $token, $callback): void
     {
         $tokenData = base64_decode($token);
         $tokenData = explode(":", $tokenData);
-        if (count($tokenData) != 2) return false;
+        if (count($tokenData) != 2) throw new \Exception("Unknown token type (#2)", 400);;
         $login = $tokenData[0];
         $password = $tokenData[1];
 
-        if (!$callback($login, $password)) return false;
-
-        return true;
+        if (!$callback($login, $password)) throw new \Exception("callback error");
     }
 
     static function decodeBasicToken(TokenData $td): ?TokenData

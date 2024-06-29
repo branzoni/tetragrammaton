@@ -72,12 +72,11 @@ class Tet
 
     //----- КОНЕЦ СТАТИКИ -------
 
-    public static function _require($path): bool
+    public static function _require($path): void
     {
         $file = new File($path);
         if (!$file->isExists()) throw new Exception("Required $path not found");
         require($path);
-        return true;
     }
 
     public static function _setErrorHandler()

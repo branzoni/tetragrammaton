@@ -63,7 +63,7 @@ class Log
         $this->add($this::LVL_DEBUG, $data);
     }
 
-    public function add(?string $level, ?string $message): bool
+    public function add(?string $level, ?string $message): void
     {
         if (!$this->filePath) return false;
 
@@ -76,6 +76,6 @@ class Log
 
         $data = implode(" ", $data);
 
-        return Filesystem::appendToFile($this->filePath, $data);
+        Filesystem::appendToFile($this->filePath, $data);
     }
 }

@@ -11,21 +11,16 @@ class Socket
 	private $handle;
 	public bool $debug = false;
 
-	function open(): bool
+	function open(): void
 	{
-		if (!$this->hostname) $this->exception("hostname not set");
-		if (!$this->port) $this->exception("port not set");
-		if (!$this->timeout) $this->exception("timeout not set");
+		if (!$this->hostname) throw new \Exception("Socket Object: hostname not set");
+		if (!$this->port) throw new \Exception("Socket Object: port not set");
+		if (!$this->timeout) throw new \Exception("Socket Object: timeout not set");
 
 		$this->handle = fsockopen($this->hostname, $this->port, $errno, $errstr, $this->timeout / 1000);
-		if (!$this->handle) return false;
-		socket_set_timeout($this->handle, 0, $this->timeout * 1000);
-		return boolval($this->handle);
-	}
+		if (!$this->handle) throw new \Exception("Socket Object: handle creating failure");
 
-	private function exception($err)
-	{
-		throw new \Exception("Socket Object: $err");
+		socket_set_timeout($this->handle, 0, $this->timeout * 1000);
 	}
 
 	private function echo(string $message)
@@ -38,16 +33,16 @@ class Socket
 		return boolval($this->handle);
 	}
 
-	function write(string $data): bool
+	function write(string $data): void
 	{
-		if (!$this->isOpened()) return false;
+		if (!$this->isOpened()) throw new \Exception("Socket Object: socket not opened");;
 		if ($this->debug) $this->echo(" - WRITE: $data");
-		return fputs($this->handle, $data);
+		fputs($this->handle, $data);
 	}
 
 	function read(): string
 	{
-		if (!$this->isOpened()) return false;
+		if (!$this->isOpened()) throw new \Exception("Socket Object: socket not opened");;
 
 		$data = "";
 		while ($buffer = fgets($this->handle, 515)) {
@@ -60,7 +55,7 @@ class Socket
 
 	function writeAndRead(string $data): ?string
 	{
-		if (!$this->write($data)) return null;
+		$this->write($data);
 		return $this->read();
 	}
 

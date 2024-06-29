@@ -127,32 +127,32 @@ class Path
     }
 
 
-	public function unlink(): bool
+	public function unlink(): void
     {
-        if (!$this->isExists()) return true;
-        return @unlink($this->path);
+        if (!$this->isExists()) return;
+        unlink($this->path);
     }
 
-	public function delete(): bool
+	public function delete(): void
     {
-        return $this->unlink();
+        $this->unlink();
     }
 
-	public function rename(string $destination): bool
+	public function rename(string $destination): void
     {
-        if(!Filesystem::createDirectory((new Path($destination))->getDirname())) return false;
-        return @rename($this->path, $destination);
+        if(!Filesystem::createDirectory((new Path($destination))->getDirname())) return;
+        rename($this->path, $destination);
     }
 
-	public function move(string $destination): bool
+	public function move(string $destination): void
     {
-        return $this->rename($destination);
+        $this->rename($destination);
     }
 
-	public function copy(string $destination): bool
+	public function copy(string $destination): void
     {
         $file = new File($destination);
-        if (!Filesystem::createDirectory($file->getDirname())) return false;
+        if (!Filesystem::createDirectory($file->getDirname())) return;
         // скачиваем файл по ссылке и сохраняем по указанному пути
 
         // считываем содержимое исходного файла
@@ -170,7 +170,5 @@ class Path
 
         fclose($destination);
         fclose($source);
-
-        return true;
     }
 }

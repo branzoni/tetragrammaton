@@ -128,7 +128,7 @@ class Router
         return new self;
     }
 
-    static function redirect(string $url): bool
+    static function redirect(string $url): void
     {
         $location = $url;
 
@@ -140,32 +140,36 @@ class Router
         }
 
         header("Location: $location");
-
-        return true;
     }
 
-	public static function run(): bool
+	public static function run(): void
 	{
 		// сначала отрабатываем возможный запрос OPTIONS
-		if (Server::getRequest()->isOptions()) return self::sendResponse(new Response(" ", 200));
+		if (Server::getRequest()->isOptions()) {
+            self::sendResponse(new Response(" ", 200));
+        }
 
 		// попытка штатно отработать роутинг
 		$route = self::getCurrentRoute();
-		if ($route) return self::sendResponse($route->getResponse());
+		if ($route) {
+            self::sendResponse($route->getResponse());
+        }
 
 		// попытка отработать дефолтный роут, если он был указан
 		$route = self::getDefaultRoute();
-		if ($route) return self::redirect($route->uri);
+		if ($route) {
+            self::redirect($route->uri);
+        }
 
 		// возврат ответа 404
-		return self::sendResponse(new Response(null, 404));
+		self::sendResponse(new Response(null, 404));
 	}
 
-	private static function sendResponse(Response $response): bool
+	private static function sendResponse(Response $response): void
 	{
 		$response->headers->set('Access-Control-Allow-Origin', self::$accessControlAllowOrigin);
 		$response->headers->set('Access-Control-Allow-Methods', self::$accessControlAllowMethods);
 		$response->headers->set('Access-Control-Allow-Headers', self::$accessControlAllowHeaders);
-		return Server::sendResponse($response);
+		Server::sendResponse($response);
 	}
 }

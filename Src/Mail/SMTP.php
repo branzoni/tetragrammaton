@@ -9,13 +9,13 @@ class SMTP
 	public int $timeout; // в миллисекундах
 	private Socket $socket;
 
-	function connect(): bool
+	function connect(): void
 	{
 		$this->socket = new Socket;
 		$this->socket->hostname = $this->hostname;
 		$this->socket->port = $this->port;
 		$this->socket->timeout = $this->timeout;
-		return $this->socket->open();
+		$this->socket->open();
 	}
 
 	function sendCommand(string $commad): ?string

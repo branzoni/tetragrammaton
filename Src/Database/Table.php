@@ -91,9 +91,9 @@ class Table
         $this->mySQL->execute("ALTER TABLE $this->name DROP COLUMN `$name`;");
     }
 
-    function dropIndex(string $name): bool
+    function dropIndex(string $name): void
     {
-        return $this->mySQL->execute("DROP INDEX $name ON $this->name");
+        $this->mySQL->execute("DROP INDEX $name ON $this->name");
     }
 
     function dropPrimaryKey(): void

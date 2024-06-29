@@ -53,7 +53,7 @@ class Server
         return $_SERVER["REQUEST_URI"];
     }
 
-    static function sendResponse(Response $response, bool $clean_buffer = false): bool
+    static function sendResponse(Response $response, bool $clean_buffer = false): void
     {
         if ($clean_buffer && ob_get_level())  ob_end_clean();
 
@@ -65,8 +65,6 @@ class Server
 
         //if ($response->code <> 200) return true;
         echo $response->body;
-
-        return true;
     }
 
     // отправить клиенту данные как файл на скачивание

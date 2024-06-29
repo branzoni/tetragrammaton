@@ -21,12 +21,12 @@ class Mailer
     public static array $messageAttachments;
     public static string $messageAsHTML;
 
-    static function send(): bool
+    static function send(): void
     {
         $message = self::createMessage();
 
         $smtp = self::createSMTP();
-        if (!$smtp->connect()) return false;
+        $smtp->connect();
 
         $smtp->sendHELO("MyMail");
         $smtp->sendSTARTTLS();
@@ -38,8 +38,6 @@ class Mailer
         $smtp->sendRCPTTO(self::$messageTo);
         $smtp->sendDATA($message->output());
         $smtp->sendQUIT();
-
-        return true;
     }
 
     private static function createMessage(): Message
