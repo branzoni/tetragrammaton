@@ -35,6 +35,7 @@ class SMTP
 		$this->sendRCPTTO($message->to);
 		$this->sendDATA($message->output());
 		$this->sendQUIT();
+		$this->socket->close();
 	}
 
 	public function sendCommand(string $command): ?string
