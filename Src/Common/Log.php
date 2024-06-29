@@ -65,7 +65,7 @@ class Log
 
     public function add(?string $level, ?string $message): void
     {
-        if (!$this->filePath) return false;
+        if (!$this->filePath) throw new \Exception("File pth not set");
 
         $data = [
             "[" . date("Y-m-d H-i-s") . "]",

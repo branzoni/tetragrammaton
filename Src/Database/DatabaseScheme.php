@@ -25,7 +25,6 @@ class DatabaseScheme
             $this->createTableClass($destination, $namespace, $dbname, $table);
             $this->createRowClass($destination, $namespace, $dbname, $table);
             $this->createRowCollectionClass($destination, $namespace, $dbname, $table);
-            return true;
         });
     }
 

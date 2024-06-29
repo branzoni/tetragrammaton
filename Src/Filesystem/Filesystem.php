@@ -18,7 +18,7 @@ class Filesystem
 	public static function createFile(string $path, $data = null): void
     {
         $file = new File($path);
-        self::createDirectory($file->getDirname()));
+        self::createDirectory($file->getDirname());
 
         $stream = fopen($path, "w");
         if (!$stream) throw new \Exception("File opening '$path' failed");
@@ -54,7 +54,7 @@ class Filesystem
 	public static function saveUploadedFile(string $source, string $destination)
     {
         $file = new File($destination);
-        if (!self::createDirectory($file->getDirname())) return false;
+        !self::createDirectory($file->getDirname());
 
         return move_uploaded_file($source, $destination);
     }

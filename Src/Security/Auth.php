@@ -99,7 +99,7 @@ class Auth
     static function decodeBearerToken(TokenData $td): TokenData
     {
         $coder = new Coder(self::$tokenSecret);
-        if (!$coder->validate($td->token)) return false;
+        if (!$coder->validate($token)) throw new \Exception("Token not valid");
         $decodedToken = $coder->decode($td->token);
         $td->bearerHeader = $decodedToken->header;
         $td->bearerPayload = $decodedToken->payload;

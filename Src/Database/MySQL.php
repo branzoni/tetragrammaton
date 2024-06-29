@@ -23,13 +23,13 @@ class MySQL
 	public static function open(string $hostname = null,  string $database = null, string $user = null, string $password = null, string $charset = "utf8"): void
 	{
 		self::$connection = mysqli_connect($hostname, $user, $password, $database);
-		if (!self::$connection) return false;
+		if (!self::$connection) throw new Exception(self::getError());
 		self::setCharset($charset);
 	}
 
 	public static function open2(string $hostname, string $user, string $password, string $database = null, string $charset = "utf8"): void
     {
-		return self::open($hostname, $user, $password, $database, $charset);
+		self::open($hostname, $user, $password, $database, $charset);
     }
 
 	public static function close(): void
@@ -40,7 +40,7 @@ class MySQL
     /**
      * @throws Exception
      */
-	public static function execute(string $query)
+	public static function execute(string $query): mixed
     {
         $result = mysqli_query(self::$connection, $query);
         if ($result === false) throw new Exception(self::getError());

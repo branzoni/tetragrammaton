@@ -62,13 +62,12 @@ class Server
         foreach ($response->headers->toArray() as $key => $header) {
             header("$key:$header");
         }
-
-        //if ($response->code <> 200) return true;
+        
         echo $response->body;
     }
 
     // отправить клиенту данные как файл на скачивание
-    static function sendDataAsFile(string $filename, string $data, $type = "application/octet-stream"): bool
+    static function sendDataAsFile(string $filename, string $data, $type = "application/octet-stream"): void
     {
         $response = new Response;
         $response->code = 200;
@@ -82,8 +81,6 @@ class Server
         $response->headers->setContentLength(strlen($data));
         $response->body = $data;
         self::sendResponse($response, true);
-
-        return true;
     }
 
     public static function createResponse(int $code): Response
