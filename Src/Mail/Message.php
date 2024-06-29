@@ -6,29 +6,50 @@ class Message
 {
     public string $subject;
     public bool $html;
-    public $reply_to = null;
-    public $sender;
-    public $from;
-    public $to;
+    public ?string $reply_to = null;
+    public string $sender;
+    public string $from;
+    public string $to;
 
-    public $text;
-    public $attachments;
-    private $boundary;
+    public string $text;
+    public array $attachments;
+    private string $boundary;
 
     const EOL = "\n";
 
-    public function output()
+
+	public function __construct(
+		string $subject,
+		string $text,
+		array $attachments,
+		string $to,
+		string $from,
+		string $sender,
+		string $replyTo,
+		bool $asHTML
+	)
+	{
+		$this->subject = $subject;
+		$this->text = $text;
+		$this->attachments = $attachments ?: [];
+		$this->to = $to;
+		$this->from = $from;
+		$this->sender = $sender;
+		$this->reply_to = $replyTo;
+		$this->html = $asHTML;
+	}
+    public function output(): string
     {
         return $this->getHeader() . $this->getBody();
     }
 
-    private function getBoundary()
+    private function getBoundary(): string
     {
         if (!$this->boundary) $this->boundary = '----=_NextPart_' . md5(time());
         return $this->boundary;
     }
 
-    private function getHeader()
+    private function getHeader(): string
     {
         $header = 'MIME-Version: 1.0' . $this::EOL;
         $header .= 'To: <' . $this->to . '>' . $this::EOL;
@@ -46,7 +67,7 @@ class Message
         return $header;
     }
 
-    private function getBody()
+    private function getBody(): string
     {
         if (!$this->html) $body = $this->getBodyAsHTML();
         else $body = $this->getBodyAsPlainText();
@@ -59,7 +80,7 @@ class Message
         return $body;
     }
 
-    private function getBodyAsHTML()
+    private function getBodyAsHTML(): string
     {
         $body = '--' . $this->getBoundary() . $this::EOL;
         $body .= 'Content-Type: text/plain; charset="utf-8"' . $this::EOL;
@@ -68,7 +89,7 @@ class Message
         return $body;
     }
 
-    private function getBodyAsPlainText()
+    private function getBodyAsPlainText(): string
     {
         $body = '--' . $this->getBoundary() . $this::EOL;
         $body .= 'Content-Type: multipart/alternative; boundary="' . $this->getBoundary() . '_alt"' . $this::EOL . $this::EOL;
@@ -85,7 +106,7 @@ class Message
         return $body;
     }
 
-    private function addAttachment($body, $attachment)
+    private function addAttachment($body, $attachment): string
     {
         $content = $this->getAttachmentContent($attachment);
         $body .= '--' . $this->getBoundary() . $this::EOL;
@@ -98,7 +119,7 @@ class Message
         return $body;
     }
 
-    private function getAttachmentContent(string $filename)
+    private function getAttachmentContent(string $filename): string
     {
         $handle = fopen($filename, 'r');
         $content = fread($handle, filesize($filename));
