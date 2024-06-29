@@ -88,6 +88,7 @@ class Table
 
     function dropColumn(string $name): void
     {
+
         $this->mySQL->execute("ALTER TABLE $this->name DROP COLUMN `$name`;");
     }
 
@@ -196,6 +197,7 @@ class Table
         $unneededColumns = array_diff($cur_columns, $new_columns);
 
         foreach ($unneededColumns as $key => $column) {
+			if (!$this->hasColumn($column)) continue;
             $this->dropColumn($column);
         }
     }
