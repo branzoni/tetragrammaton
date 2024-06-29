@@ -5,10 +5,36 @@ namespace Tet\Mail;
 class SMTP
 {
 	private Socket $socket;
+	private string $login;
+	private string $password;
 
-	public function connect($hostname, $port, $timeout): void
+	public function connect(string $hostname, int $port, int $timeout): void
 	{
 		$this->socket->open($hostname, $port, $timeout);
+	}
+
+	public function setLoginAndPassword(string $login, string $password): void
+	{
+		$this->login = $login;
+		$this->password = $password;
+	}
+
+	public function sendMessageAndQuit(\Tet\Mail\Message $message): void
+	{
+		if (!this->login || !$this->password) {
+			throw new \Exception('Login and password are required.');
+		}
+
+		$this->sendHELO("MyMail");
+		$this->sendSTARTTLS();
+		$this->sendHELO("MyMail");
+		$this->sendAUTHLOGIN();
+		$this->sendCommand(base64_encode($this->login));
+		$this->sendCommand(base64_encode($this->password));
+		$this->sendMAILFROM($message->from);
+		$this->sendRCPTTO($message->to);
+		$this->sendDATA($message->output());
+		$this->sendQUIT();
 	}
 
 	public function sendCommand(string $command): ?string
