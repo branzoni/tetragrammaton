@@ -10,7 +10,7 @@ class Mailer
     public static string $login;
     public static string $password;
 
-	public function setSMTP($host, $port, $timeout, $login, $password) {
+	public static function setSMTP($host, $port, $timeout, $login, $password) {
 		self::$hostname = $host;
 		self::$port = $port;
 		self::$timeout = $timeout;
