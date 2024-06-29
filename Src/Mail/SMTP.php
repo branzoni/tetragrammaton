@@ -21,7 +21,7 @@ class SMTP
 
 	public function sendMessageAndQuit(\Tet\Mail\Message $message): void
 	{
-		if (!this->login || !$this->password) {
+		if (!$this->login || !$this->password) {
 			throw new \Exception('Login and password are required.');
 		}
 
