@@ -43,7 +43,7 @@ class MySQL
 	public static function execute(string $query)
     {
         $result = mysqli_query(self::$connection, $query);
-        if ($result === false) throw new Exception(self::getError());
+        if ($result === false) throw new Exception(self::getError() . " - $query");
         if ($result === true) return true;
         return mysqli_fetch_all($result,  MYSQLI_ASSOC);
     }

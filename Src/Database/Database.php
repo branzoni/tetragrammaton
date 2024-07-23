@@ -76,9 +76,9 @@ class Database
 
     function modifyTable(string $name, TableDef $tableDef): void
     {
-        $table = $this->getTable($name);   
-        $table->addColumnsFromSchema($tableDef);
-        $table->deleteOutSchemaColumns($tableDef);
+        $table = $this->getTable($name);
+        $table->deleteOutSchemaColumns($tableDef);//
+		$table->addColumnsFromSchema($tableDef);
 		$table->addUniqueIndexesFromSchema($tableDef);
     }
 
